@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Estado de la instancia</title>
+</head>
+
+<body>
+
+<h1>Estado general de la instancia</h1>
+
+<p>
+    <strong>Servidor:</strong>
+    <span th:text="${estado.servidor}"></span>
+</p>
+
+<p>
+    <strong>Instancia:</strong>
+    <span th:text="${estado.instancia}"></span>
+</p>
+
+<p>
+    <strong>SGBD:</strong>
+    <span th:text="${estado.tipoSGBD}"></span>
+</p>
+
+<p>
+    <strong>Versión:</strong>
+    <span th:text="${estado.version}"></span>
+</p>
+
+<p>
+    <strong>Edición:</strong>
+    <span th:text="${estado.edicion}"></span>
+</p>
+
+<p>
+    <strong>Estado:</strong>
+    <span th:text="${estado.estado}"></span>
+</p>
+
+<p>
+    <strong>Fecha de inicio:</strong>
+    <span th:text="${estado.fechaInicio}"></span>
+</p>
+
+<p>
+    <strong>Tiempo de actividad:</strong>
+    <span th:text="${estado.tiempoActividad}"></span>
+</p>
+
+<p>
+    <strong>Memoria utilizada:</strong>
+    <span th:text="${estado.memoriaUtilizadaMB}"></span> MB
+</p>
+
+<p>
+    <strong>Memoria asignada:</strong>
+    <span th:text="${estado.memoriaAsignadaMB}"></span> MB
+</p>
+
+<p>
+    <strong>Uso de memoria:</strong>
+    <span th:text="${estado.porcentajeMemoria}"></span> %
+</p>
+
+<h2>Bases de datos administradas</h2>
+
+<ul>
+    <li th:each="base : ${estado.basesDatos}"
+        th:text="${base}">
+    </li>
+</ul>
+
+</body>
+
+</html>
