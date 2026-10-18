@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${tituloModulo} ?: 'Monitoreo de rendimiento'">Monitoreo de rendimiento</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.13.2/font/bootstrap-icons.min.css}">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .tarjeta-indicador .valor {
+            font-size: 1.75rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .tarjeta-indicador .etiqueta {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6c757d;
+        }
+
+        .contenedor-grafico {
+            position: relative;
+            height: 320px;
+        }
+
+        .tabla-consulta code {
+            display: block;
+            max-width: 520px;
+            max-height: 4.5rem;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.78rem;
+        }
+
+        .hallazgo {
+            border-left: 4px solid #adb5bd;
+        }
+
+        .hallazgo.nivel-OK { border-left-color: #198754; }
+        .hallazgo.nivel-INFORMATIVO { border-left-color: #0dcaf0; }
+        .hallazgo.nivel-ADVERTENCIA { border-left-color: #ffc107; }
+        .hallazgo.nivel-CRITICO { border-left-color: #dc3545; }
+    </style>
+</head>
+<body th:attr="data-api-panel=@{/rendimiento/api/panel}">
+
+<div class="container-xxl py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-speedometer2 me-2"></i>
+                <span th:text="${tituloModulo} ?: 'Monitoreo de rendimiento'">Monitoreo de rendimiento</span>
+            </h1>
+            <p class="text-muted mb-0">Módulo 2 · Estado de recursos, sesiones y consultas de la instancia.</p>
+        </div>
+        <div class="text-end">
+            <button type="button" id="boton-refrescar" class="btn btn-primary">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <div class="small text-muted mt-1">
+                Última actualización: <span id="ultima-actualizacion">—</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="contenedor-error" class="alert alert-danger d-none" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span id="mensaje-error"></span>
+    </div>
+
+    <!-- Contexto de la instancia -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body py-2">
+            <div class="row row-cols-2 row-cols-md-4 g-2 small">
+                <div class="col"><span class="text-muted">Versión SQL Server:</span> <strong id="ctx-version">—</strong></div>
+                <div class="col"><span class="text-muted">Núcleos de CPU:</span> <strong id="ctx-nucleos">—</strong></div>
+                <div class="col"><span class="text-muted">Memoria del servidor:</span> <strong id="ctx-memoria">—</strong></div>
+                <div class="col"><span class="text-muted">Conexiones máximas:</span> <strong id="ctx-conexiones">—</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicadores resumen -->
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">Sesiones totales</div>
+                    <div class="valor" id="sum-total-sesiones">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">Sesiones activas</div>
+                    <div class="valor text-success" id="sum-activas">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">Sesiones bloqueadas</div>
+                    <div class="valor" id="sum-bloqueadas">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">Consultas en caché</div>
+                    <div class="valor" id="sum-consultas">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">CPU acumulado</div>
+                    <div class="valor" id="sum-cpu">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">Tiempo promedio</div>
+                    <div class="valor" id="sum-tiempo">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">Memoria de sesiones</div>
+                    <div class="valor" id="sum-memoria">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card tarjeta-indicador shadow-sm h-100">
+                <div class="card-body">
+                    <div class="etiqueta">CPU consulta top</div>
+                    <div class="valor" id="sum-cpu-top">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos principales -->
+    <div class="row g-3 mb-3">
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-bar-chart-line me-2"></i>Top consultas por consumo de CPU (ms)
+                </div>
+                <div class="card-body">
+                    <div class="contenedor-grafico"><canvas id="grafico-cpu"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-stopwatch me-2"></i>Top consultas por tiempo promedio (ms)
+                </div>
+                <div class="card-body">
+                    <div class="contenedor-grafico"><canvas id="grafico-tiempo"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-diagram-3 me-2"></i>Estado de las sesiones
+                </div>
+                <div class="card-body">
+                    <div class="contenedor-grafico"><canvas id="grafico-sesiones"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-cpu me-2"></i>Consumo de CPU por sesión (ms)
+                </div>
+                <div class="card-body">
+                    <div class="contenedor-grafico"><canvas id="grafico-consumo"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interpretación de resultados -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-clipboard-check me-2"></i>Interpretación de resultados
+        </div>
+        <div class="card-body">
+            <div id="lista-hallazgos" class="vstack gap-2">
+                <div class="text-muted">Sin información disponible.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tablas de detalle -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-list-ol me-2"></i>Consultas con mayor consumo
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover table-consulta mb-0 align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Base de datos</th>
+                    <th>Consulta</th>
+                    <th class="text-end">Ejec.</th>
+                    <th class="text-end">CPU total</th>
+                    <th class="text-end">CPU prom.</th>
+                    <th class="text-end">% CPU</th>
+                    <th class="text-end">Lecturas lóg.</th>
+                </tr>
+                </thead>
+                <tbody id="tabla-consultas">
+                <tr><td colspan="8" class="text-muted">Sin datos.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-people me-2"></i>Sesiones de usuario
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0 align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Login</th>
+                    <th>Host</th>
+                    <th>Programa</th>
+                    <th>Base de datos</th>
+                    <th>Estado</th>
+                    <th class="text-end">CPU (ms)</th>
+                    <th class="text-end">Memoria (MB)</th>
+                    <th>Última petición</th>
+                </tr>
+                </thead>
+                <tbody id="tabla-sesiones">
+                <tr><td colspan="9" class="text-muted">Sin datos.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-shield-exclamation me-2"></i>Sesiones bloqueadas
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0 align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>Sesión</th>
+                    <th>Bloqueada por</th>
+                    <th>Tipo de espera</th>
+                    <th class="text-end">Espera (ms)</th>
+                    <th>Estado</th>
+                    <th>Comando</th>
+                    <th>Base de datos</th>
+                </tr>
+                </thead>
+                <tbody id="tabla-bloqueos">
+                <tr><td colspan="7" class="text-muted">Sin datos.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/webjars/chart.js/4.5.1/dist/chart.umd.min.js}"></script>
+<script th:src="@{/js/rendimiento/charts.js}"></script>
+</body>
+</html>
