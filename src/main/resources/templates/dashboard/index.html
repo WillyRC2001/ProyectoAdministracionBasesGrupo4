@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Dashboard')}"></head>
+
+<body>
+
+<div class="d-flex">
+
+    <!-- Barra lateral -->
+    <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+
+
+    <!-- Contenido -->
+    <main class="main-content">
+
+        <div class="container-fluid">
+
+            <div class="mb-4">
+
+                <h1>Dashboard de Administración</h1>
+
+                <p class="text-muted">
+                    Monitoreo, administración y auditoría de Microsoft SQL Server
+                </p>
+
+            </div>
+
+
+            <div class="row g-4">
+
+                <!-- Módulo 1 -->
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card module-card h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Estado de la instancia
+                            </h5>
+
+                            <p class="card-text">
+                                Información general del servidor,
+                                instancia, versión, memoria y bases
+                                de datos administradas.
+                            </p>
+
+                            <a th:href="@{/estado}"
+                               class="btn btn-primary">
+                                Ver módulo
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Módulo 2 -->
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card module-card h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Monitoreo de rendimiento
+                            </h5>
+
+                            <p class="card-text">
+                                Consultas de alto consumo,
+                                sesiones, bloqueos y utilización
+                                de recursos.
+                            </p>
+
+                            <button class="btn btn-secondary"
+                                    disabled>
+                                En desarrollo
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Módulo 3 -->
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card module-card h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Gestión del almacenamiento
+                            </h5>
+
+                            <p class="card-text">
+                                Filegroups, archivos de datos,
+                                espacio utilizado y crecimiento
+                                de la base de datos.
+                            </p>
+
+                            <button class="btn btn-secondary"
+                                    disabled>
+                                En desarrollo
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Módulo 4 -->
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card module-card h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Respaldo y recuperación
+                            </h5>
+
+                            <p class="card-text">
+                                Últimos respaldos, tipos,
+                                estado e historial de copias
+                                de seguridad.
+                            </p>
+
+                            <button class="btn btn-secondary"
+                                    disabled>
+                                En desarrollo
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Módulo 5 -->
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card module-card h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Auditoría
+                            </h5>
+
+                            <p class="card-text">
+                                Usuarios, roles, privilegios
+                                y objetos con errores.
+                            </p>
+
+                            <button class="btn btn-secondary"
+                                    disabled>
+                                En desarrollo
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Módulo 6 -->
+                <div class="col-md-6 col-xl-4">
+
+                    <div class="card module-card h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Mantenimiento preventivo
+                            </h5>
+
+                            <p class="card-text">
+                                Estadísticas, detección y
+                                corrección de objetos que
+                                requieren intervención.
+                            </p>
+
+                            <button class="btn btn-secondary"
+                                    disabled>
+                                En desarrollo
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+
+</body>
+</html>

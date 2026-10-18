@@ -1,78 +1,189 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Estado de la instancia</title>
-</head>
+<head th:replace="~{fragments/head :: head('Estado de la instancia')}"></head>
 
 <body>
 
-<h1>Estado general de la instancia</h1>
+<div class="d-flex">
 
-<p>
-    <strong>Servidor:</strong>
-    <span th:text="${estado.servidor}"></span>
-</p>
+    <div th:replace="~{fragments/sidebar :: sidebar('estado')}"></div>
 
-<p>
-    <strong>Instancia:</strong>
-    <span th:text="${estado.instancia}"></span>
-</p>
+    <main class="main-content">
 
-<p>
-    <strong>SGBD:</strong>
-    <span th:text="${estado.tipoSGBD}"></span>
-</p>
+        <div class="container-fluid">
 
-<p>
-    <strong>Versión:</strong>
-    <span th:text="${estado.version}"></span>
-</p>
+            <div class="mb-4">
+                <h1>Estado general de la instancia</h1>
 
-<p>
-    <strong>Edición:</strong>
-    <span th:text="${estado.edicion}"></span>
-</p>
+                <p class="text-muted">
+                    Información operativa de la instancia de Microsoft SQL Server.
+                </p>
+            </div>
 
-<p>
-    <strong>Estado:</strong>
-    <span th:text="${estado.estado}"></span>
-</p>
+            <div class="row g-4">
 
-<p>
-    <strong>Fecha de inicio:</strong>
-    <span th:text="${estado.fechaInicio}"></span>
-</p>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card module-card h-100">
+                        <div class="card-body">
 
-<p>
-    <strong>Tiempo de actividad:</strong>
-    <span th:text="${estado.tiempoActividad}"></span>
-</p>
+                            <h5 class="card-title">
+                                Servidor e instancia
+                            </h5>
 
-<p>
-    <strong>Memoria utilizada:</strong>
-    <span th:text="${estado.memoriaUtilizadaMB}"></span> MB
-</p>
+                            <p>
+                                <strong>Servidor:</strong>
+                                <span th:text="${estado.servidor}"></span>
+                            </p>
 
-<p>
-    <strong>Memoria asignada:</strong>
-    <span th:text="${estado.memoriaAsignadaMB}"></span> MB
-</p>
+                            <p>
+                                <strong>Instancia:</strong>
+                                <span th:text="${estado.instancia}"></span>
+                            </p>
 
-<p>
-    <strong>Uso de memoria:</strong>
-    <span th:text="${estado.porcentajeMemoria}"></span> %
-</p>
+                            <p>
+                                <strong>SGBD:</strong>
+                                <span th:text="${estado.tipoSGBD}"></span>
+                            </p>
 
-<h2>Bases de datos administradas</h2>
+                            <p>
+                                <strong>Versión:</strong>
+                                <span th:text="${estado.version}"></span>
+                            </p>
 
-<ul>
-    <li th:each="base : ${estado.basesDatos}"
-        th:text="${base}">
-    </li>
-</ul>
+                            <p>
+                                <strong>Edición:</strong>
+                                <span th:text="${estado.edicion}"></span>
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="card module-card h-100">
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Estado operativo
+                            </h5>
+
+                            <p>
+                                <strong>Estado:</strong>
+
+                                <span class="badge text-bg-success"
+                                      th:text="${estado.estado}">
+                                </span>
+                            </p>
+
+                            <p>
+                                <strong>Fecha de inicio:</strong><br>
+
+                                <span th:text="${estado.fechaInicio}">
+                                </span>
+                            </p>
+
+                            <p>
+                                <strong>Tiempo de actividad:</strong><br>
+
+                                <span th:text="${estado.tiempoActividad}">
+                                </span>
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="card module-card h-100">
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                Memoria
+                            </h5>
+
+                            <p>
+                                <strong>Utilizada:</strong>
+                                <span th:text="${estado.memoriaUtilizadaMB}">
+                                </span>
+                                MB
+                            </p>
+
+                            <p>
+                                <strong>Asignada:</strong>
+                                <span th:text="${estado.memoriaAsignadaMB}">
+                                </span>
+                                MB
+                            </p>
+
+                            <p>
+                                <strong>Uso:</strong>
+                                <span th:text="${estado.porcentajeMemoria}">
+                                </span>
+                                %
+                            </p>
+
+                            <div class="progress">
+
+                                <div class="progress-bar"
+                                     role="progressbar"
+                                     th:style="'width:' + ${estado.porcentajeMemoria} + '%'"
+                                     th:text="${estado.porcentajeMemoria} + '%'">
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="card module-card mt-4">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        Bases de datos administradas
+                    </h5>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead>
+                            <tr>
+                                <th>Nombre de la base de datos</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+
+                            <tr th:each="base : ${estado.basesDatos}">
+                                <td th:text="${base}"></td>
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/scripts :: scripts}"></div>
 
 </body>
-
 </html>

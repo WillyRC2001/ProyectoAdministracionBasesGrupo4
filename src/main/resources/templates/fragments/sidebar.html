@@ -1,0 +1,59 @@
+<aside class="sidebar" th:fragment="sidebar(activePage)">
+
+    <div class="sidebar-header">
+        <h4>DB Monitor</h4>
+        <small>SQL Server</small>
+    </div>
+
+    <nav class="nav flex-column">
+
+        <a class="nav-link"
+           th:classappend="${activePage == 'dashboard'} ? ' active'"
+           th:href="@{/}">
+            Dashboard
+        </a>
+
+        <a class="nav-link"
+           th:classappend="${activePage == 'estado'} ? ' active'"
+           th:href="@{/estado}">
+            Estado de la instancia
+        </a>
+
+        <a class="nav-link disabled">
+            Rendimiento
+            <span class="badge text-bg-secondary ms-1">
+                En desarrollo
+            </span>
+        </a>
+
+        <a class="nav-link disabled">
+            Almacenamiento
+            <span class="badge text-bg-secondary ms-1">
+                En desarrollo
+            </span>
+        </a>
+
+        <a class="nav-link disabled">
+            Respaldos
+            <span class="badge text-bg-secondary ms-1">
+                En desarrollo
+            </span>
+        </a>
+
+        <a class="nav-link disabled">
+            Auditoría
+            <span class="badge text-bg-secondary ms-1">
+                En desarrollo
+            </span>
+        </a>
+
+        <a class="nav-link disabled">
+            Mantenimiento
+            <span class="badge text-bg-secondary ms-1">
+                En desarrollo
+            </span>
+        </a>
+
+    </nav>
+
+</aside>
