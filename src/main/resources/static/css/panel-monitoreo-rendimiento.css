@@ -1,0 +1,1220 @@
+/*
+ * Modulo 2 - Monitoreo de rendimiento.
+ * Hoja de estilos de la vista "panel-monitoreo-rendimiento".
+ *
+ * Todas las clases llevan el prefijo "rx-" para no interferir con el layout
+ * comun (dashboard.css / Bootstrap) ni con los estilos de otros modulos.
+ *
+ * Paleta: monocromatica (grafito y acero). Sin glow, sin degradados de color
+ * y sin scanlines; el contraste se construye con luminosidad, no con saturacion.
+ * Se conservan solo dos tintes funcionales muy apagados para no perder la
+ * semantica de los hallazgos:
+ *
+ *   aviso   -> ambar apagado   (umbrales superados)
+ *   critico -> oxido apagado   (bloqueos y riesgos)
+ *
+ * Cada componente declara su tinte con la clase tematica
+ *   rx-tema-acento | rx-tema-neutro | rx-tema-ok | rx-tema-aviso | rx-tema-critico
+ * y reutiliza los tokens --rx-acento, --rx-acento-tenue y --rx-acento-claro.
+ */
+
+/* ==========================================================================
+   0. Base
+   ========================================================================== */
+
+body.rx-cuerpo {
+    background-color: #0b0d10;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent 320px);
+    background-attachment: fixed;
+    color: #b4bac1;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+}
+
+body.rx-cuerpo ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body.rx-cuerpo ::-webkit-scrollbar-track {
+    background: #0b0d10;
+}
+
+body.rx-cuerpo ::-webkit-scrollbar-thumb {
+    background: #2b3138;
+    border-radius: 4px;
+}
+
+body.rx-cuerpo ::-webkit-scrollbar-thumb:hover {
+    background: #3c444d;
+}
+
+/* Fuentes display y monoespaciadas (el resto hereda Inter). */
+.rx-font-display {
+    font-family: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+}
+
+.rx-font-mono {
+    font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+}
+
+/* Tematicas: mismo tinte declarado en tres intensidades. */
+.rx-tema-acento {
+    --rx-acento: #9fadba;
+    --rx-acento-tenue: rgba(159, 173, 186, 0.13);
+    --rx-acento-claro: #c6d0d9;
+}
+
+.rx-tema-neutro {
+    --rx-acento: #858d96;
+    --rx-acento-tenue: rgba(133, 141, 150, 0.13);
+    --rx-acento-claro: #adb5bd;
+}
+
+.rx-tema-ok {
+    --rx-acento: #c2c9cf;
+    --rx-acento-tenue: rgba(194, 201, 207, 0.11);
+    --rx-acento-claro: #e4e8eb;
+}
+
+.rx-tema-aviso {
+    --rx-acento: #a68a4e;
+    --rx-acento-tenue: rgba(166, 138, 78, 0.14);
+    --rx-acento-claro: #c6aa70;
+}
+
+.rx-tema-critico {
+    --rx-acento: #a4635c;
+    --rx-acento-tenue: rgba(164, 99, 92, 0.15);
+    --rx-acento-claro: #bf837c;
+}
+
+/* Utilidades propias (independientes de Bootstrap). */
+.rx-oculto {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    .rx-oculto-md {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
+   1. Escenario (contenedor con reticula tenue)
+   ========================================================================== */
+
+.rx-escenario {
+    position: relative;
+    z-index: 1;
+}
+
+.rx-escenario__fondo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+}
+
+.rx-escenario__reticula {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        repeating-linear-gradient(to right, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 96px),
+        repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 96px);
+}
+
+.rx-seccion {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 22px;
+}
+
+/* ==========================================================================
+   2. Panel base
+   ========================================================================== */
+
+.rx-panel {
+    position: relative;
+    background: linear-gradient(170deg, rgba(29, 32, 37, 0.66), rgba(19, 21, 25, 0.56));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.rx-panel:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.rx-titulo-seccion {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 14px;
+    font-family: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 0.84rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #dfe3e7;
+}
+
+.rx-titulo-seccion i {
+    color: var(--rx-acento, #9fadba);
+    font-size: 1rem;
+}
+
+.rx-titulo-seccion::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.14), transparent);
+}
+
+/* ==========================================================================
+   3. Cabecera
+   ========================================================================== */
+
+.rx-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 22px;
+    border-left: 3px solid var(--rx-acento, #9fadba);
+    border-radius: 0 14px 14px 0;
+}
+
+.rx-cabecera__marca {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.rx-cabecera__chip {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--rx-acento, #9fadba);
+    font-size: 1.35rem;
+}
+
+.rx-cabecera__chip .rx-pulso {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #7f8a94;
+    border: 2px solid #0b0d10;
+}
+
+.rx-cabecera__titulo-fila {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.rx-cabecera__titulo {
+    margin: 0;
+    font-family: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.1rem, 2.2vw, 1.55rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #eef1f3;
+}
+
+.rx-etiqueta {
+    padding: 3px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.03);
+    color: #9aa2aa;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.rx-cabecera__estado {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 6px 0 0;
+    color: #838a92;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.rx-indicador {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+    border-radius: 50%;
+    background: var(--rx-estado-color, #6b737b);
+    transition: background 0.3s ease;
+}
+
+.rx-indicador--carga {
+    --rx-estado-color: #9fadba;
+    animation: rx-respirar 1.6s ease-in-out infinite;
+}
+
+.rx-indicador--ok {
+    --rx-estado-color: #c2c9cf;
+}
+
+.rx-indicador--aviso {
+    --rx-estado-color: #a68a4e;
+}
+
+.rx-indicador--critico {
+    --rx-estado-color: #a4635c;
+    animation: rx-respirar 1.1s ease-in-out infinite;
+}
+
+.rx-cabecera__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.rx-marca-tiempo {
+    color: #6b737b;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+}
+
+/* ==========================================================================
+   4. Botones
+   ========================================================================== */
+
+.rx-boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--rx-acento-claro, #c6d0d9);
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.rx-boton:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #eef1f3;
+}
+
+.rx-boton:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.rx-boton[aria-pressed="true"] {
+    background: var(--rx-acento-tenue, rgba(159, 173, 186, 0.13));
+    border-color: var(--rx-acento, #9fadba);
+    color: var(--rx-acento-claro, #c6d0d9);
+}
+
+.rx-boton:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+.rx-boton--icono {
+    position: relative;
+    padding: 9px 12px;
+}
+
+.rx-boton__contador {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--rx-acento, #a4635c);
+    color: #12151a;
+    font-size: 0.62rem;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   5. Contexto de instancia + resumen KPI
+   ========================================================================== */
+
+.rx-contexto {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    overflow: hidden;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 1100px) {
+    .rx-contexto {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .rx-contexto {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.rx-contexto__celda {
+    padding: 13px 16px;
+    background: #14171b;
+}
+
+.rx-contexto__clave {
+    display: block;
+    color: #7b828a;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.rx-contexto__valor {
+    display: block;
+    margin-top: 5px;
+    color: #e4e8eb;
+    font-family: 'Orbitron', 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.rx-resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+    gap: 14px;
+}
+
+.rx-kpi {
+    padding: 16px 16px 14px;
+    overflow: hidden;
+}
+
+.rx-kpi::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--rx-acento, #9fadba);
+    opacity: 0.75;
+}
+
+.rx-kpi__superior {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.rx-kpi__etiqueta {
+    color: #7b828a;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.rx-kpi__icono {
+    color: var(--rx-acento, #9fadba);
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.rx-kpi__valor {
+    margin-top: 8px;
+    color: var(--rx-acento-claro, #c6d0d9);
+    font-family: 'Orbitron', 'Segoe UI', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.15;
+    word-break: break-word;
+}
+
+.rx-kpi__valor--alerta {
+    color: var(--rx-acento, #a4635c);
+}
+
+.rx-kpi__pie {
+    margin-top: 7px;
+    color: #6b737b;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   6. Tarjetas de graficos
+   ========================================================================== */
+
+.rx-matriz {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.rx-tarjeta {
+    padding: 18px;
+    border-top: 2px solid var(--rx-acento, #9fadba);
+}
+
+.rx-tarjeta__cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.rx-tarjeta__titulo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 0;
+    color: #eef1f3;
+    font-family: 'Orbitron', 'Segoe UI', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.rx-tarjeta__titulo i {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--rx-acento, #9fadba);
+}
+
+.rx-tarjeta__subtitulo {
+    margin: 4px 0 14px;
+    color: #6b737b;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.rx-lienzo {
+    position: relative;
+    height: 268px;
+}
+
+.rx-tarjeta__detalle {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin-top: 14px;
+    padding: 11px 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.24);
+    color: #a7aeb5;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.68rem;
+    line-height: 1.5;
+}
+
+.rx-tarjeta__detalle i {
+    color: var(--rx-acento, #9fadba);
+    margin-top: 2px;
+}
+
+.rx-tarjeta__detalle strong {
+    display: block;
+    color: #dfe3e7;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   7. Interpretacion (stream de hallazgos)
+   ========================================================================== */
+
+.rx-panel-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: 14px 14px 0 0;
+}
+
+.rx-panel-cuerpo {
+    padding: 16px 18px 18px;
+}
+
+.rx-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.rx-filtro {
+    padding: 5px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 7px;
+    background: transparent;
+    color: #838a92;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.rx-filtro:hover {
+    color: #dfe3e7;
+    border-color: rgba(255, 255, 255, 0.28);
+}
+
+.rx-filtro[aria-pressed="true"] {
+    background: var(--rx-acento-tenue, rgba(159, 173, 186, 0.13));
+    border-color: var(--rx-acento, #9fadba);
+    color: var(--rx-acento-claro, #c6d0d9);
+}
+
+.rx-lista-hallazgos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rx-hallazgo {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
+    border-left: 2px solid var(--rx-acento, #9fadba);
+    border-radius: 0 10px 10px 0;
+    background: rgba(255, 255, 255, 0.018);
+    transition: background 0.2s ease;
+}
+
+.rx-hallazgo:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.rx-hallazgo__nivel {
+    color: var(--rx-acento, #9fadba);
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.rx-hallazgo__titulo {
+    color: #e7eaed;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.rx-hallazgo__mensaje {
+    margin: 3px 0 0;
+    color: #a7aeb5;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.rx-hallazgo__recomendacion {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 7px 0 0;
+    color: #7b828a;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.68rem;
+    line-height: 1.5;
+}
+
+.rx-hallazgo__recomendacion i {
+    color: var(--rx-acento, #9fadba);
+    margin-top: 2px;
+}
+
+.rx-vacio {
+    padding: 22px;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #6b737b;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.72rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+/* ==========================================================================
+   8. Registros expandibles (tablas)
+   ========================================================================== */
+
+.rx-registro {
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.rx-registro + .rx-registro {
+    margin-top: 12px;
+}
+
+.rx-registro__cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 18px;
+    border: 0;
+    background: rgba(0, 0, 0, 0.26);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.rx-registro__cabecera:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.rx-registro__titulo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: #dfe3e7;
+    font-family: 'Orbitron', 'Segoe UI', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.rx-registro__titulo i {
+    color: var(--rx-acento, #9fadba);
+    font-size: 1rem;
+}
+
+.rx-registro__acciones {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rx-contador {
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--rx-acento-claro, #c6d0d9);
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+}
+
+.rx-chevron {
+    color: #838a92;
+    transition: transform 0.3s ease;
+}
+
+.rx-registro[data-abierto="true"] .rx-chevron {
+    transform: rotate(180deg);
+}
+
+.rx-registro__cuerpo {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rx-registro[data-abierto="false"] .rx-registro__cuerpo {
+    grid-template-rows: 0fr;
+}
+
+.rx-registro__cuerpo-interior {
+    overflow: hidden;
+    min-height: 0;
+}
+
+.rx-registro__contenido {
+    padding: 4px 8px 8px;
+}
+
+/* ==========================================================================
+   9. Tablas estilo terminal
+   ========================================================================== */
+
+.rx-tabla-envoltura {
+    overflow-x: auto;
+}
+
+.rx-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.73rem;
+}
+
+.rx-tabla thead th {
+    padding: 11px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    background: #14171b;
+    color: #838a92;
+    font-weight: 600;
+    font-size: 0.64rem;
+    letter-spacing: 0.13em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.rx-tabla tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #bcc2c8;
+    vertical-align: middle;
+}
+
+.rx-tabla tbody tr {
+    transition: background 0.15s ease;
+}
+
+.rx-tabla tbody tr:hover {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.rx-tabla .rx-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: #e4e8eb;
+}
+
+/* La columna del texto SQL reserva ancho mínimo: la tabla se desplaza en
+   horizontal antes que comprimir el código hasta hacerlo ilegible. */
+.rx-tabla--sql th:nth-child(3),
+.rx-tabla--sql td:nth-child(3) {
+    min-width: 320px;
+}
+
+.rx-tabla .rx-sql {
+    display: block;
+    max-width: 480px;
+    max-height: 4.2rem;
+    overflow: auto;
+    padding: 6px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.34);
+    color: #c3c9cf;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.68rem;
+    line-height: 1.45;
+}
+
+.rx-sello {
+    display: inline-block;
+    padding: 3px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--rx-acento-claro, #c6d0d9);
+    font-size: 0.62rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   10. Alertas, avisos de error y toasts
+   ========================================================================== */
+
+.rx-alerta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-left: 3px solid var(--rx-acento, #a4635c);
+    background: rgba(255, 255, 255, 0.025);
+    color: #cfd4d9;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.76rem;
+    line-height: 1.5;
+}
+
+.rx-alerta i {
+    color: var(--rx-acento, #a4635c);
+    font-size: 1.1rem;
+}
+
+.rx-toasts {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(340px, calc(100vw - 40px));
+    pointer-events: none;
+}
+
+.rx-toast {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    padding: 13px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--rx-acento, #9fadba);
+    background: rgba(20, 23, 27, 0.97);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    color: #cfd4d9;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    pointer-events: auto;
+}
+
+.rx-toast--visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.rx-toast i {
+    color: var(--rx-acento, #9fadba);
+    font-size: 1rem;
+    margin-top: 1px;
+}
+
+.rx-toast__titulo {
+    display: block;
+    color: var(--rx-acento-claro, #c6d0d9);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   11. Cajon de diagnostico y modal de alertas
+   ========================================================================== */
+
+.rx-capa {
+    position: fixed;
+    inset: 0;
+    z-index: 1250;
+    background: rgba(4, 6, 8, 0.72);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.rx-capa--visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.rx-cajon {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1260;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: min(460px, 94vw);
+    height: 100%;
+    padding: 26px 24px;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(200deg, rgba(21, 24, 28, 0.99), rgba(13, 15, 18, 0.99));
+    backdrop-filter: blur(16px);
+    box-shadow: -22px 0 54px rgba(0, 0, 0, 0.55);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+}
+
+.rx-cajon--visible {
+    transform: translateX(0);
+}
+
+.rx-cajon__cabecera,
+.rx-modal__cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rx-cajon__titulo,
+.rx-modal__titulo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 0;
+    color: #eef1f3;
+    font-family: 'Orbitron', 'Segoe UI', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.rx-cajon__titulo i,
+.rx-modal__titulo i {
+    color: var(--rx-acento, #9fadba);
+}
+
+.rx-boton-cerrar {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.03);
+    color: #838a92;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.rx-boton-cerrar:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #e4e8eb;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.rx-bloque {
+    margin-top: 22px;
+}
+
+.rx-bloque__titulo {
+    margin: 0 0 12px;
+    color: var(--rx-acento, #9fadba);
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.rx-niveles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.rx-nivel {
+    padding: 13px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.rx-nivel__valor {
+    display: block;
+    color: var(--rx-acento-claro, #c6d0d9);
+    font-family: 'Orbitron', 'Segoe UI', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.rx-nivel__etiqueta {
+    display: block;
+    margin-top: 4px;
+    color: #7b828a;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.rx-umbral {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+    color: #a7aeb5;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.68rem;
+    line-height: 1.5;
+}
+
+.rx-umbral:last-child {
+    border-bottom: 0;
+}
+
+.rx-umbral i {
+    color: var(--rx-acento, #9fadba);
+    margin-top: 3px;
+}
+
+.rx-umbral strong {
+    color: #e4e8eb;
+    font-weight: 700;
+}
+
+.rx-pie-cajon {
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #575e65;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.rx-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 1270;
+    width: min(560px, calc(100vw - 32px));
+    max-height: 82vh;
+    overflow-y: auto;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 3px solid var(--rx-acento, #a4635c);
+    background: linear-gradient(160deg, rgba(23, 26, 30, 0.99), rgba(14, 16, 19, 0.99));
+    box-shadow: 0 28px 64px rgba(0, 0, 0, 0.62);
+    transform: translate(-50%, -46%) scale(0.98);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.rx-modal--visible {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.rx-modal__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rx-modal__pie {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 22px;
+}
+
+/* ==========================================================================
+   12. Tooltips y animaciones
+   ========================================================================== */
+
+.rx-tooltip {
+    position: relative;
+}
+
+.rx-tooltip::after {
+    content: attr(data-rx-tooltip);
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    background: rgba(18, 21, 25, 0.98);
+    color: #b9c0c7;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 50;
+}
+
+.rx-tooltip:hover::after {
+    opacity: 1;
+}
+
+@keyframes rx-respirar {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.35;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rx-escenario__fondo,
+    .rx-escenario__reticula {
+        display: none;
+    }
+
+    * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}

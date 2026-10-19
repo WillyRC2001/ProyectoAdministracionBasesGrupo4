@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(${tituloModulo} ?: 'Monitoreo de rendimiento')}"></head>
+
+<body class="rx-cuerpo" th:attr="data-api-panel=@{/rendimiento/api/panel}">
+
+<!-- Fuentes display y monoespaciadas del diseño (con respaldo del sistema) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@600;700;800&display=swap">
+<link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.13.2/font/bootstrap-icons.min.css}">
+<link rel="stylesheet" th:href="@{/css/panel-monitoreo-rendimiento.css}">
+
+<div class="d-flex">
+
+    <!-- Barra lateral común (layout compartido) -->
+    <div th:replace="~{fragments/sidebar :: sidebar('rendimiento')}"></div>
+
+    <main class="main-content">
+        <div class="rx-escenario">
+
+            <!-- Fondo animado y retícula (solo decorativos) -->
+            <canvas class="rx-escenario__fondo" id="rx-fondo-particulas" aria-hidden="true"></canvas>
+            <div class="rx-escenario__reticula" aria-hidden="true"></div>
+
+            <!-- ============================================================
+                 1. CABECERA DEL MÓDULO
+                 ============================================================ -->
+            <section class="rx-seccion rx-panel rx-tema-acento rx-cabecera">
+
+                <div class="rx-cabecera__marca">
+                    <div class="rx-cabecera__chip" aria-hidden="true">
+                        <i class="bi bi-activity"></i>
+                        <span class="rx-pulso"></span>
+                    </div>
+
+                    <div>
+                        <div class="rx-cabecera__titulo-fila">
+                            <h1 class="rx-cabecera__titulo"
+                                th:text="${tituloModulo} ?: 'Monitoreo de rendimiento'">Monitoreo de rendimiento</h1>
+                            <span class="rx-etiqueta">Módulo 2</span>
+                        </div>
+                        <p class="rx-cabecera__estado">
+                            <span class="rx-indicador rx-indicador--carga" id="rx-estado-punto"></span>
+                            <span id="rx-estado-texto">Consultando telemetría…</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="rx-cabecera__acciones">
+                    <span class="rx-marca-tiempo">
+                        <i class="bi bi-clock-history"></i>
+                        <span id="rx-ultima-actualizacion">—</span>
+                    </span>
+
+                    <button type="button" id="rx-boton-autoactualizar"
+                            class="rx-boton rx-tema-ok rx-tooltip"
+                            data-rx-tooltip="Refresco automático cada 30 s"
+                            aria-pressed="false">
+                        <i class="bi bi-arrow-repeat"></i><span class="rx-oculto-md">Auto</span>
+                    </button>
+
+                    <button type="button" id="rx-boton-refrescar" class="rx-boton rx-tema-acento">
+                        <i class="bi bi-arrow-clockwise"></i><span>Actualizar</span>
+                    </button>
+
+                    <button type="button" id="rx-boton-alertas"
+                            class="rx-boton rx-tema-critico rx-boton--icono rx-tooltip"
+                            data-rx-tooltip="Hallazgos con riesgo detectado"
+                            aria-haspopup="dialog">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="rx-boton__contador" id="rx-alertas-contador">0</span>
+                    </button>
+
+                    <button type="button" id="rx-boton-diagnostico" class="rx-boton rx-tema-neutro"
+                            aria-haspopup="dialog" aria-controls="rx-cajon">
+                        <i class="bi bi-sliders2-vertical"></i><span class="rx-oculto-md">Diagnóstico</span>
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- ============================================================
+                 2. CONTEXTO DE LA INSTANCIA
+                 ============================================================ -->
+            <section class="rx-seccion">
+                <div class="rx-panel rx-tema-acento rx-contexto">
+
+                    <div class="rx-contexto__celda">
+                        <span class="rx-contexto__clave">Versión SQL Server</span>
+                        <span class="rx-contexto__valor" id="rx-ctx-version">—</span>
+                    </div>
+
+                    <div class="rx-contexto__celda">
+                        <span class="rx-contexto__clave">Núcleos de CPU</span>
+                        <span class="rx-contexto__valor" id="rx-ctx-nucleos">—</span>
+                    </div>
+
+                    <div class="rx-contexto__celda">
+                        <span class="rx-contexto__clave">Memoria del servidor</span>
+                        <span class="rx-contexto__valor" id="rx-ctx-memoria">—</span>
+                    </div>
+
+                    <div class="rx-contexto__celda">
+                        <span class="rx-contexto__clave">Conexiones máximas</span>
+                        <span class="rx-contexto__valor" id="rx-ctx-conexiones">—</span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Aviso de error controlado (sin trazas internas) -->
+            <section class="rx-seccion rx-oculto" id="rx-alerta-error" role="alert">
+                <div class="rx-panel rx-tema-critico rx-alerta">
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                    <span id="rx-alerta-error-texto"></span>
+                </div>
+            </section>
+
+            <noscript>
+                <section class="rx-seccion">
+                    <div class="rx-panel rx-tema-critico rx-alerta">
+                        <i class="bi bi-javascript"></i>
+                        <span>Este panel necesita JavaScript para consultar la telemetría de la instancia.</span>
+                    </div>
+                </section>
+            </noscript>
+
+            <!-- ============================================================
+                 3. INDICADORES CLAVE (KPI)
+                 ============================================================ -->
+            <section class="rx-seccion">
+
+                <h2 class="rx-titulo-seccion rx-tema-acento">
+                    <i class="bi bi-gauge-high"></i>Indicadores clave
+                </h2>
+
+                <div class="rx-resumen">
+
+                    <article class="rx-panel rx-kpi rx-tema-acento">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">Sesiones totales</span>
+                            <i class="bi bi-diagram-3-fill rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-total-sesiones">—</div>
+                        <div class="rx-kpi__pie" id="rx-kpi-total-sesiones-pie">Conexiones en la instancia</div>
+                    </article>
+
+                    <article class="rx-panel rx-kpi rx-tema-ok">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">Sesiones activas</span>
+                            <i class="bi bi-broadcast rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-sesiones-activas">—</div>
+                        <div class="rx-kpi__pie" id="rx-kpi-sesiones-activas-pie">Ejecutando peticiones</div>
+                    </article>
+
+                    <article class="rx-panel rx-kpi rx-tema-critico">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">Sesiones bloqueadas</span>
+                            <i class="bi bi-exclamation-diamond-fill rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-sesiones-bloqueadas">—</div>
+                        <div class="rx-kpi__pie" id="rx-kpi-sesiones-bloqueadas-pie">Espera de recursos</div>
+                    </article>
+
+                    <article class="rx-panel rx-kpi rx-tema-neutro">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">Consultas en caché</span>
+                            <i class="bi bi-cpu-fill rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-consultas-cache">—</div>
+                        <div class="rx-kpi__pie">sys.dm_exec_query_stats</div>
+                    </article>
+
+                    <article class="rx-panel rx-kpi rx-tema-acento">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">CPU acumulado</span>
+                            <i class="bi bi-speedometer2 rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-cpu-total">—</div>
+                        <div class="rx-kpi__pie">Tiempo total en caché de planes</div>
+                    </article>
+
+                    <article class="rx-panel rx-kpi rx-tema-aviso">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">Tiempo promedio</span>
+                            <i class="bi bi-stopwatch-fill rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-tiempo-promedio">—</div>
+                        <div class="rx-kpi__pie">Umbral: mayor que 1 000 ms</div>
+                    </article>
+
+                    <article class="rx-panel rx-kpi rx-tema-aviso">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">Memoria de sesiones</span>
+                            <i class="bi bi-memory rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-memoria-sesiones">—</div>
+                        <div class="rx-kpi__pie" id="rx-kpi-memoria-sesiones-pie">Umbral: 60 % del servidor</div>
+                    </article>
+
+                    <article class="rx-panel rx-kpi rx-tema-aviso">
+                        <div class="rx-kpi__superior">
+                            <span class="rx-kpi__etiqueta">CPU consulta líder</span>
+                            <i class="bi bi-trophy-fill rx-kpi__icono" aria-hidden="true"></i>
+                        </div>
+                        <div class="rx-kpi__valor" id="rx-kpi-cpu-top">—</div>
+                        <div class="rx-kpi__pie" id="rx-kpi-cpu-top-pie">Umbral: mayor o igual a 50 %</div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- ============================================================
+                 4. MATRIZ DE GRÁFICOS
+                 ============================================================ -->
+            <section class="rx-seccion">
+
+                <h2 class="rx-titulo-seccion rx-tema-acento">
+                    <i class="bi bi-bar-chart-fill"></i>Matriz de gráficos
+                </h2>
+
+                <div class="rx-matriz">
+
+                    <article class="rx-panel rx-tarjeta rx-tema-acento">
+                        <div class="rx-tarjeta__cabecera">
+                            <h3 class="rx-tarjeta__titulo">
+                                <i class="bi bi-cpu" aria-hidden="true"></i>Top consultas por CPU
+                            </h3>
+                        </div>
+                        <p class="rx-tarjeta__subtitulo">sys.dm_exec_query_stats · CPU acumulada (ms)</p>
+                        <div class="rx-lienzo"><canvas id="rx-grafico-cpu"></canvas></div>
+                        <div class="rx-tarjeta__detalle">
+                            <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+                            <span>
+                                <strong>Consulta con mayor CPU</strong>
+                                <span id="rx-detalle-consulta-top">Sin datos disponibles.</span>
+                            </span>
+                        </div>
+                    </article>
+
+                    <article class="rx-panel rx-tarjeta rx-tema-neutro">
+                        <div class="rx-tarjeta__cabecera">
+                            <h3 class="rx-tarjeta__titulo">
+                                <i class="bi bi-hourglass-split" aria-hidden="true"></i>Top consultas por tiempo
+                            </h3>
+                        </div>
+                        <p class="rx-tarjeta__subtitulo">Duración media por ejecución (ms)</p>
+                        <div class="rx-lienzo"><canvas id="rx-grafico-tiempo"></canvas></div>
+                    </article>
+
+                    <article class="rx-panel rx-tarjeta rx-tema-ok">
+                        <div class="rx-tarjeta__cabecera">
+                            <h3 class="rx-tarjeta__titulo">
+                                <i class="bi bi-pie-chart-fill" aria-hidden="true"></i>Estado de las sesiones
+                            </h3>
+                        </div>
+                        <p class="rx-tarjeta__subtitulo">Activas · bloqueadas · inactivas</p>
+                        <div class="rx-lienzo"><canvas id="rx-grafico-sesiones"></canvas></div>
+                    </article>
+
+                    <article class="rx-panel rx-tarjeta rx-tema-neutro">
+                        <div class="rx-tarjeta__cabecera">
+                            <h3 class="rx-tarjeta__titulo">
+                                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>CPU por sesión
+                            </h3>
+                        </div>
+                        <p class="rx-tarjeta__subtitulo">Consumo acumulado de cada sesión (ms)</p>
+                        <div class="rx-lienzo"><canvas id="rx-grafico-consumo"></canvas></div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- ============================================================
+                 5. INTERPRETACIÓN DE RESULTADOS
+                 ============================================================ -->
+            <section class="rx-seccion">
+
+                <h2 class="rx-titulo-seccion rx-tema-acento">
+                    <i class="bi bi-clipboard2-pulse-fill"></i>Interpretación de resultados
+                </h2>
+
+                <div class="rx-panel rx-tema-ok">
+
+                    <div class="rx-panel-cabecera">
+                        <span class="rx-marca-tiempo" id="rx-hallazgos-resumen">Sin datos</span>
+
+                        <div class="rx-filtros" role="group" aria-label="Filtrar hallazgos por nivel">
+                            <button type="button" class="rx-filtro rx-tema-acento" data-rx-filtro="TODOS"
+                                    aria-pressed="true">Todos</button>
+                            <button type="button" class="rx-filtro rx-tema-critico" data-rx-filtro="CRITICO"
+                                    aria-pressed="false">Crítico</button>
+                            <button type="button" class="rx-filtro rx-tema-aviso" data-rx-filtro="ADVERTENCIA"
+                                    aria-pressed="false">Advertencia</button>
+                            <button type="button" class="rx-filtro rx-tema-neutro" data-rx-filtro="INFORMATIVO"
+                                    aria-pressed="false">Info</button>
+                            <button type="button" class="rx-filtro rx-tema-ok" data-rx-filtro="OK"
+                                    aria-pressed="false">OK</button>
+                        </div>
+                    </div>
+
+                    <div class="rx-panel-cuerpo">
+                        <ul class="rx-lista-hallazgos" id="rx-lista-hallazgos">
+                            <li class="rx-vacio">Sin hallazgos para mostrar.</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ============================================================
+                 6. REGISTROS DETALLADOS (tablas expandibles)
+                 ============================================================ -->
+            <section class="rx-seccion">
+
+                <h2 class="rx-titulo-seccion rx-tema-acento">
+                    <i class="bi bi-terminal"></i>Registros detallados
+                </h2>
+
+                <!-- 6.1 Consultas con mayor consumo -->
+                <article class="rx-panel rx-registro rx-tema-acento" data-abierto="true">
+                    <button type="button" class="rx-registro__cabecera" data-rx-registro aria-expanded="true">
+                        <span class="rx-registro__titulo">
+                            <i class="bi bi-list-ol" aria-hidden="true"></i>Consultas con mayor consumo
+                        </span>
+                        <span class="rx-registro__acciones">
+                            <span class="rx-contador" id="rx-contador-consultas">0</span>
+                            <i class="bi bi-chevron-down rx-chevron" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <div class="rx-registro__cuerpo">
+                        <div class="rx-registro__cuerpo-interior">
+                            <div class="rx-registro__contenido">
+                                <div class="rx-tabla-envoltura">
+                                    <table class="rx-tabla rx-tabla--sql">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Base de datos</th>
+                                            <th scope="col">Consulta</th>
+                                            <th scope="col" class="rx-num">Ejec.</th>
+                                            <th scope="col" class="rx-num">CPU total</th>
+                                            <th scope="col" class="rx-num">CPU prom.</th>
+                                            <th scope="col" class="rx-num">% CPU</th>
+                                            <th scope="col" class="rx-num">Lecturas lóg.</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="rx-tabla-consultas">
+                                        <tr><td colspan="8" class="rx-vacio">Sin datos.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 6.2 Sesiones de usuario -->
+                <article class="rx-panel rx-registro rx-tema-ok" data-abierto="true">
+                    <button type="button" class="rx-registro__cabecera" data-rx-registro aria-expanded="true">
+                        <span class="rx-registro__titulo">
+                            <i class="bi bi-people-fill" aria-hidden="true"></i>Sesiones de usuario
+                        </span>
+                        <span class="rx-registro__acciones">
+                            <span class="rx-contador" id="rx-contador-sesiones">0</span>
+                            <i class="bi bi-chevron-down rx-chevron" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <div class="rx-registro__cuerpo">
+                        <div class="rx-registro__cuerpo-interior">
+                            <div class="rx-registro__contenido">
+                                <div class="rx-tabla-envoltura">
+                                    <table class="rx-tabla">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Login</th>
+                                            <th scope="col">Host</th>
+                                            <th scope="col">Programa</th>
+                                            <th scope="col">Base de datos</th>
+                                            <th scope="col">Estado</th>
+                                            <th scope="col" class="rx-num">CPU (ms)</th>
+                                            <th scope="col" class="rx-num">Memoria (MB)</th>
+                                            <th scope="col">Última petición</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="rx-tabla-sesiones">
+                                        <tr><td colspan="9" class="rx-vacio">Sin datos.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 6.3 Sesiones bloqueadas -->
+                <article class="rx-panel rx-registro rx-tema-critico" data-abierto="true">
+                    <button type="button" class="rx-registro__cabecera" data-rx-registro aria-expanded="true">
+                        <span class="rx-registro__titulo">
+                            <i class="bi bi-shield-exclamation" aria-hidden="true"></i>Sesiones bloqueadas
+                        </span>
+                        <span class="rx-registro__acciones">
+                            <span class="rx-contador" id="rx-contador-bloqueos">0</span>
+                            <i class="bi bi-chevron-down rx-chevron" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <div class="rx-registro__cuerpo">
+                        <div class="rx-registro__cuerpo-interior">
+                            <div class="rx-registro__contenido">
+                                <div class="rx-tabla-envoltura">
+                                    <table class="rx-tabla">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Sesión</th>
+                                            <th scope="col">Bloqueada por</th>
+                                            <th scope="col">Tipo de espera</th>
+                                            <th scope="col" class="rx-num">Espera (ms)</th>
+                                            <th scope="col">Estado</th>
+                                            <th scope="col">Comando</th>
+                                            <th scope="col">Base de datos</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="rx-tabla-bloqueos">
+                                        <tr><td colspan="7" class="rx-vacio">No se detectaron sesiones bloqueadas.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<!-- ============================================================
+     7. CAPAS DE INTERACCIÓN (toasts, cajón de diagnóstico, alertas)
+     ============================================================ -->
+
+<div class="rx-toasts" id="rx-toasts" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Cajón lateral: diagnóstico e umbrales -->
+<div class="rx-capa" id="rx-capa-cajon" data-rx-cerrar-cajon></div>
+
+<aside class="rx-cajon rx-tema-neutro" id="rx-cajon" role="dialog" aria-modal="true"
+       aria-labelledby="rx-cajon-titulo" aria-hidden="true">
+
+    <div>
+        <div class="rx-cajon__cabecera">
+            <h2 class="rx-cajon__titulo" id="rx-cajon-titulo">
+                <i class="bi bi-sliders2-vertical" aria-hidden="true"></i>Panel de diagnóstico
+            </h2>
+            <button type="button" class="rx-boton-cerrar" data-rx-cerrar-cajon aria-label="Cerrar panel">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="rx-bloque">
+            <h3 class="rx-bloque__titulo">Hallazgos por nivel</h3>
+            <div class="rx-niveles">
+                <div class="rx-nivel rx-tema-ok">
+                    <span class="rx-nivel__valor" id="rx-nivel-ok">0</span>
+                    <span class="rx-nivel__etiqueta">OK / estables</span>
+                </div>
+                <div class="rx-nivel rx-tema-neutro">
+                    <span class="rx-nivel__valor" id="rx-nivel-informativo">0</span>
+                    <span class="rx-nivel__etiqueta">Informativo</span>
+                </div>
+                <div class="rx-nivel rx-tema-aviso">
+                    <span class="rx-nivel__valor" id="rx-nivel-advertencia">0</span>
+                    <span class="rx-nivel__etiqueta">Advertencia</span>
+                </div>
+                <div class="rx-nivel rx-tema-critico">
+                    <span class="rx-nivel__valor" id="rx-nivel-critico">0</span>
+                    <span class="rx-nivel__etiqueta">Crítico</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rx-bloque">
+            <h3 class="rx-bloque__titulo">Umbrales de interpretación</h3>
+
+            <div class="rx-umbral">
+                <i class="bi bi-unlock-fill" aria-hidden="true"></i>
+                <span>Sesiones bloqueadas con espera <strong>≥ 5 000 ms</strong> → nivel crítico.</span>
+            </div>
+            <div class="rx-umbral">
+                <i class="bi bi-unlock-fill" aria-hidden="true"></i>
+                <span>Sesiones bloqueadas con espera <strong>&lt; 5 000 ms</strong> → nivel advertencia.</span>
+            </div>
+            <div class="rx-umbral">
+                <i class="bi bi-cpu" aria-hidden="true"></i>
+                <span>Consulta que concentra el CPU acumulado <strong>≥ 50 %</strong> → nivel advertencia.</span>
+            </div>
+            <div class="rx-umbral">
+                <i class="bi bi-stopwatch" aria-hidden="true"></i>
+                <span>Tiempo de ejecución promedio global <strong>&gt; 1 000 ms</strong> → nivel advertencia.</span>
+            </div>
+            <div class="rx-umbral">
+                <i class="bi bi-memory" aria-hidden="true"></i>
+                <span>Memoria de sesiones sobre la memoria del servidor <strong>≥ 60 %</strong> → nivel advertencia.</span>
+            </div>
+            <div class="rx-umbral">
+                <i class="bi bi-database" aria-hidden="true"></i>
+                <span>Sin consultas registradas en la caché de planes → nivel informativo.</span>
+            </div>
+        </div>
+    </div>
+
+    <p class="rx-pie-cajon">Solo lectura · DMVs · Sin operaciones de escritura</p>
+</aside>
+
+<!-- Modal: hallazgos con riesgo -->
+<div class="rx-capa" id="rx-capa-modal" data-rx-cerrar-modal></div>
+
+<div class="rx-modal rx-tema-critico" id="rx-modal-alertas" role="alertdialog" aria-modal="true"
+     aria-labelledby="rx-modal-titulo" aria-hidden="true">
+
+    <div class="rx-modal__cabecera">
+        <h2 class="rx-modal__titulo" id="rx-modal-titulo">
+            <i class="bi bi-bell-fill" aria-hidden="true"></i>Hallazgos con riesgo
+        </h2>
+        <button type="button" class="rx-boton-cerrar" data-rx-cerrar-modal aria-label="Cerrar alertas">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <ul class="rx-modal__lista" id="rx-modal-alertas-lista">
+        <li class="rx-vacio">Sin hallazgos de riesgo. Rendimiento estable.</li>
+    </ul>
+
+    <div class="rx-modal__pie">
+        <button type="button" class="rx-boton rx-tema-critico" data-rx-cerrar-modal>Entendido</button>
+    </div>
+</div>
+
+<!-- Scripts del layout + Chart.js + lógica del módulo -->
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+<script th:src="@{/webjars/chart.js/4.5.1/dist/chart.umd.min.js}"></script>
+<script th:src="@{/js/rendimiento/panel-monitoreo-rendimiento-efectos.js}"></script>
+<script th:src="@{/js/rendimiento/panel-monitoreo-rendimiento-graficos.js}"></script>
+<script th:src="@{/js/rendimiento/panel-monitoreo-rendimiento-datos.js}"></script>
+
+</body>
+</html>
