@@ -26,11 +26,10 @@
             </span>
         </a>
 
-        <a class="nav-link disabled">
+        <a class="nav-link"
+           th:classappend="${activePage == 'almacenamiento'} ? ' active'"
+           th:href="@{/almacenamiento}">
             Almacenamiento
-            <span class="badge text-bg-secondary ms-1">
-                En desarrollo
-            </span>
         </a>
 
         <a class="nav-link disabled">
