@@ -16,6 +16,7 @@ public class AlmacenamientoService {
     public PanelAlmacenamientoDTO construirPanel() {
         return new PanelAlmacenamientoDTO(
                 repository.obtenerTamanoBaseDatos(),
+                repository.listarFilegroups(),
                 repository.listarArchivos());
     }
 }
