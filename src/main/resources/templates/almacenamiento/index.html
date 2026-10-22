@@ -8,9 +8,11 @@
 
 <div class="d-flex">
 
+    <!-- Barra lateral -->
     <div th:replace="~{fragments/sidebar :: sidebar('almacenamiento')}"></div>
 
 
+    <!-- Contenido -->
     <main class="main-content"
           id="contenido"
           th:attr="data-api=@{/almacenamiento/api/panel}">
@@ -22,7 +24,7 @@
                 <h1>Gestión del almacenamiento</h1>
 
                 <p class="text-muted">
-                    Tamaño de la base de datos y detalle de sus archivos en Microsoft SQL Server.
+                    Tamaño de la base de datos, filegroups y detalle de sus archivos en Microsoft SQL Server.
                 </p>
 
             </div>
@@ -32,6 +34,7 @@
                  role="alert"></div>
 
 
+            <!-- Resumen de tamaño -->
             <div class="row g-4 mb-4">
 
                 <div class="col-md-6 col-xl-4">
@@ -74,6 +77,49 @@
             </div>
 
 
+            <!-- Filegroups -->
+            <div class="card module-card mb-4">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">Filegroups</h5>
+
+                    <p class="text-muted">
+                        Un filegroup agrupa archivos de datos. El espacio disponible es lo que queda libre
+                        dentro de lo ya asignado; el archivo de log no pertenece a ningún filegroup.
+                    </p>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead>
+                            <tr>
+                                <th>Filegroup</th>
+                                <th>Archivos</th>
+                                <th>Tamaño</th>
+                                <th>Usado</th>
+                                <th>Disponible</th>
+                                <th style="min-width: 220px;">Uso</th>
+                            </tr>
+                            </thead>
+
+                            <tbody id="tablaFilegroups">
+                            <tr>
+                                <td colspan="6" class="text-muted">Cargando…</td>
+                            </tr>
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Detalle de archivos -->
             <div class="card module-card">
 
                 <div class="card-body">
@@ -152,24 +198,14 @@
             return td;
         }
 
-        function celdaArchivo(archivo) {
-            const div = document.createElement('div');
-            const nombre = document.createElement('strong');
-            nombre.textContent = archivo.nombreLogico;
-            const ruta = document.createElement('small');
-            ruta.className = 'text-muted d-block text-break';
-            ruta.textContent = archivo.rutaFisica;
-            div.appendChild(nombre);
-            div.appendChild(ruta);
-            return div;
-        }
-
-        function insigniaTipo(tipo) {
-            const span = document.createElement('span');
-            const esDatos = tipo === 'ROWS';
-            span.className = 'badge ' + (esDatos ? 'text-bg-primary' : 'text-bg-secondary');
-            span.textContent = esDatos ? 'Datos' : 'Log';
-            return span;
+        function filaVacia(columnas, texto) {
+            const fila = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = columnas;
+            td.className = 'text-muted';
+            td.textContent = texto;
+            fila.appendChild(td);
+            return fila;
         }
 
         function barraUso(usado, total) {
@@ -190,16 +226,71 @@
             return contenedor;
         }
 
-        function pintar(panel) {
-            document.getElementById('baseDatos').textContent = panel.tamano.baseDatos;
-            document.getElementById('datosMb').textContent = formatMb(panel.tamano.datosMb);
-            document.getElementById('logMb').textContent = formatMb(panel.tamano.logMb);
-            document.getElementById('totalMb').textContent = formatMb(panel.tamano.totalMb);
+        function celdaArchivo(archivo) {
+            const div = document.createElement('div');
+            const nombre = document.createElement('strong');
+            nombre.textContent = archivo.nombreLogico;
+            const ruta = document.createElement('small');
+            ruta.className = 'text-muted d-block text-break';
+            ruta.textContent = archivo.rutaFisica;
+            div.appendChild(nombre);
+            div.appendChild(ruta);
+            return div;
+        }
 
+        function insigniaTipo(tipo) {
+            const span = document.createElement('span');
+            const esDatos = tipo === 'ROWS';
+            span.className = 'badge ' + (esDatos ? 'text-bg-primary' : 'text-bg-secondary');
+            span.textContent = esDatos ? 'Datos' : 'Log';
+            return span;
+        }
+
+        function celdaFilegroup(filegroup) {
+            const div = document.createElement('div');
+            const nombre = document.createElement('strong');
+            nombre.textContent = filegroup.nombre;
+            div.appendChild(nombre);
+            if (filegroup.predeterminado) {
+                const insignia = document.createElement('span');
+                insignia.className = 'badge text-bg-info ms-2';
+                insignia.textContent = 'Predeterminado';
+                div.appendChild(insignia);
+            }
+            return div;
+        }
+
+        function pintarFilegroups(filegroups) {
+            const cuerpo = document.getElementById('tablaFilegroups');
+            cuerpo.replaceChildren();
+
+            if (filegroups.length === 0) {
+                cuerpo.appendChild(filaVacia(6, 'No se encontraron filegroups en la base de datos.'));
+                return;
+            }
+
+            filegroups.forEach(function (filegroup) {
+                const fila = document.createElement('tr');
+                fila.appendChild(celda(celdaFilegroup(filegroup)));
+                fila.appendChild(celda(String(filegroup.archivos)));
+                fila.appendChild(celda(formatMb(filegroup.tamanoMb)));
+                fila.appendChild(celda(formatMb(filegroup.usadoMb)));
+                fila.appendChild(celda(formatMb(filegroup.disponibleMb)));
+                fila.appendChild(celda(barraUso(filegroup.usadoMb, filegroup.tamanoMb)));
+                cuerpo.appendChild(fila);
+            });
+        }
+
+        function pintarArchivos(archivos) {
             const cuerpo = document.getElementById('tablaArchivos');
             cuerpo.replaceChildren();
 
-            panel.archivos.forEach(function (archivo) {
+            if (archivos.length === 0) {
+                cuerpo.appendChild(filaVacia(7, 'No se encontraron archivos para la base de datos.'));
+                return;
+            }
+
+            archivos.forEach(function (archivo) {
                 const fila = document.createElement('tr');
                 fila.appendChild(celda(celdaArchivo(archivo)));
                 fila.appendChild(celda(insigniaTipo(archivo.tipo)));
@@ -214,10 +305,21 @@
             });
         }
 
+        function pintar(panel) {
+            document.getElementById('baseDatos').textContent = panel.tamano.baseDatos;
+            document.getElementById('datosMb').textContent = formatMb(panel.tamano.datosMb);
+            document.getElementById('logMb').textContent = formatMb(panel.tamano.logMb);
+            document.getElementById('totalMb').textContent = formatMb(panel.tamano.totalMb);
+
+            pintarFilegroups(panel.filegroups);
+            pintarArchivos(panel.archivos);
+        }
+
         function mostrarError(mensaje) {
             const alerta = document.getElementById('alertaError');
             alerta.textContent = mensaje;
             alerta.classList.remove('d-none');
+            document.getElementById('tablaFilegroups').replaceChildren();
             document.getElementById('tablaArchivos').replaceChildren();
         }
 

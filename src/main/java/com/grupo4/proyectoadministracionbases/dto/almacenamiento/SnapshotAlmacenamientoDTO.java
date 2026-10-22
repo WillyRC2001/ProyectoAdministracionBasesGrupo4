@@ -7,5 +7,7 @@ public record SnapshotAlmacenamientoDTO(
         LocalDateTime fechaCaptura,
         String baseDatos,
         BigDecimal datosMb,
-        BigDecimal logMb) {
+        BigDecimal logMb,
+        BigDecimal usadoDatosMb,
+        BigDecimal usadoLogMb) {
 }
