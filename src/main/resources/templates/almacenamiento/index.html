@@ -8,24 +8,26 @@
 
 <div class="d-flex">
 
-    <!-- Barra lateral -->
     <div th:replace="~{fragments/sidebar :: sidebar('almacenamiento')}"></div>
 
-
-    <!-- Contenido -->
     <main class="main-content"
           id="contenido"
-          th:attr="data-api=@{/almacenamiento/api/panel}">
+          th:attr="data-api=@{/almacenamiento/api/panel},data-api-crecimiento=@{/almacenamiento/api/crecimiento}">
 
         <div class="container-fluid">
 
-            <div class="mb-4">
+            <div class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
 
-                <h1>Gestión del almacenamiento</h1>
+                <div>
+                    <h1>Gestión del almacenamiento</h1>
+                    <p class="text-muted mb-0">
+                        Tamaño de la base de datos, filegroups, archivos, objetos de mayor tamaño y crecimiento en Microsoft SQL Server.
+                    </p>
+                </div>
 
-                <p class="text-muted">
-                    Tamaño de la base de datos, filegroups y detalle de sus archivos en Microsoft SQL Server.
-                </p>
+                <button id="btnActualizar" type="button" class="btn btn-primary">
+                    Actualizar
+                </button>
 
             </div>
 
@@ -33,8 +35,8 @@
                  class="alert alert-danger d-none"
                  role="alert"></div>
 
+            <div id="hallazgos" class="mb-4"></div>
 
-            <!-- Resumen de tamaño -->
             <div class="row g-4 mb-4">
 
                 <div class="col-md-6 col-xl-4">
@@ -76,10 +78,7 @@
 
             </div>
 
-
-            <!-- Filegroups -->
             <div class="card module-card mb-4">
-
                 <div class="card-body">
 
                     <h5 class="card-title">Filegroups</h5>
@@ -90,9 +89,7 @@
                     </p>
 
                     <div class="table-responsive">
-
                         <table class="table table-hover align-middle">
-
                             <thead>
                             <tr>
                                 <th>Filegroup</th>
@@ -103,33 +100,24 @@
                                 <th style="min-width: 220px;">Uso</th>
                             </tr>
                             </thead>
-
                             <tbody id="tablaFilegroups">
                             <tr>
                                 <td colspan="6" class="text-muted">Cargando…</td>
                             </tr>
                             </tbody>
-
                         </table>
-
                     </div>
 
                 </div>
-
             </div>
 
-
-            <!-- Detalle de archivos -->
-            <div class="card module-card">
-
+            <div class="card module-card mb-4">
                 <div class="card-body">
 
                     <h5 class="card-title">Archivos de la base de datos</h5>
 
                     <div class="table-responsive">
-
                         <table class="table table-hover align-middle">
-
                             <thead>
                             <tr>
                                 <th>Archivo</th>
@@ -141,15 +129,12 @@
                                 <th>Crecimiento</th>
                             </tr>
                             </thead>
-
                             <tbody id="tablaArchivos">
                             <tr>
                                 <td colspan="7" class="text-muted">Cargando…</td>
                             </tr>
                             </tbody>
-
                         </table>
-
                     </div>
 
                     <p class="text-muted small mt-3 mb-0">
@@ -160,7 +145,83 @@
                     </p>
 
                 </div>
+            </div>
 
+            <div class="card module-card mb-4">
+                <div class="card-body">
+
+                    <h5 class="card-title">Objetos de mayor tamaño</h5>
+
+                    <p class="text-muted">
+                        Las 10 tablas que más espacio reservan, con el detalle de datos e índices.
+                        La participación se calcula sobre el espacio total asignado a datos.
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>Tabla</th>
+                                <th class="text-end">Filas</th>
+                                <th>Datos</th>
+                                <th>Índices</th>
+                                <th>Reservado</th>
+                                <th style="min-width: 200px;">Participación</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tablaObjetos">
+                            <tr>
+                                <td colspan="6" class="text-muted">Cargando…</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card module-card">
+                <div class="card-body">
+
+                    <h5 class="card-title">Crecimiento de la base de datos</h5>
+
+                    <p class="text-muted">
+                        Historial real registrado automáticamente cada hora en la tabla
+                        <code>dbo.AlmacenamientoSnapshot</code>.
+                    </p>
+
+                    <div id="alertaCrecimiento"
+                         class="alert alert-warning d-none"
+                         role="alert"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Capturas registradas</small>
+                                <strong id="crecCapturas" class="fs-4">…</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Crecimiento de datos usados</small>
+                                <strong id="crecTotal" class="fs-4">…</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Ritmo estimado</small>
+                                <strong id="crecRitmo" class="fs-4">…</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p id="crecInterpretacion" class="mb-3"></p>
+
+                    <div style="position: relative; height: 320px;">
+                        <canvas id="graficoCrecimiento"></canvas>
+                    </div>
+
+                </div>
             </div>
 
         </div>
@@ -171,9 +232,14 @@
 
 <div th:replace="~{fragments/scripts :: scripts}"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js"></script>
+
 <script>
     (function () {
-        const url = document.getElementById('contenido').dataset.api;
+        const contenido = document.getElementById('contenido');
+        const urlPanel = contenido.dataset.api;
+        const urlCrecimiento = contenido.dataset.apiCrecimiento;
+        let grafico = null;
 
         function formatMb(valor) {
             const mb = Number(valor);
@@ -188,12 +254,12 @@
             return 'bg-success';
         }
 
-        function celda(contenido) {
+        function celda(contenidoCelda) {
             const td = document.createElement('td');
-            if (contenido instanceof Node) {
-                td.appendChild(contenido);
+            if (contenidoCelda instanceof Node) {
+                td.appendChild(contenidoCelda);
             } else {
-                td.textContent = contenido;
+                td.textContent = contenidoCelda;
             }
             return td;
         }
@@ -208,22 +274,32 @@
             return fila;
         }
 
-        function barraUso(usado, total) {
-            const porcentaje = total > 0 ? Math.round((usado / total) * 100) : 0;
+        function barra(porcentaje, clase, etiquetaTexto) {
             const contenedor = document.createElement('div');
             const etiqueta = document.createElement('small');
-            etiqueta.textContent = formatMb(usado) + ' de ' + formatMb(total) + ' (' + porcentaje + '%)';
+            etiqueta.textContent = etiquetaTexto;
             const progreso = document.createElement('div');
             progreso.className = 'progress mt-1';
             progreso.style.height = '8px';
-            const barra = document.createElement('div');
-            barra.className = 'progress-bar ' + colorUso(porcentaje);
-            barra.setAttribute('role', 'progressbar');
-            barra.style.width = porcentaje + '%';
-            progreso.appendChild(barra);
+            const relleno = document.createElement('div');
+            relleno.className = 'progress-bar ' + clase;
+            relleno.setAttribute('role', 'progressbar');
+            relleno.style.width = Math.min(porcentaje, 100) + '%';
+            progreso.appendChild(relleno);
             contenedor.appendChild(etiqueta);
             contenedor.appendChild(progreso);
             return contenedor;
+        }
+
+        function barraUso(usado, total) {
+            const porcentaje = total > 0 ? Math.round((usado / total) * 100) : 0;
+            return barra(porcentaje, colorUso(porcentaje),
+                formatMb(usado) + ' de ' + formatMb(total) + ' (' + porcentaje + '%)');
+        }
+
+        function barraParticipacion(valor, total) {
+            const porcentaje = total > 0 ? (valor / total) * 100 : 0;
+            return barra(porcentaje, 'bg-primary', porcentaje.toFixed(1) + ' %');
         }
 
         function celdaArchivo(archivo) {
@@ -258,6 +334,32 @@
                 div.appendChild(insignia);
             }
             return div;
+        }
+
+        function celdaObjeto(objeto) {
+            const strong = document.createElement('strong');
+            strong.textContent = objeto.esquema + '.' + objeto.nombre;
+            return strong;
+        }
+
+        function pintarHallazgos(hallazgos) {
+            const contenedor = document.getElementById('hallazgos');
+            contenedor.replaceChildren();
+
+            const clases = { CRITICO: 'alert-danger', ADVERTENCIA: 'alert-warning', OK: 'alert-success' };
+
+            hallazgos.forEach(function (hallazgo) {
+                const alerta = document.createElement('div');
+                alerta.className = 'alert ' + (clases[hallazgo.nivel] || 'alert-secondary') + ' mb-2';
+                alerta.setAttribute('role', 'alert');
+                const titulo = document.createElement('strong');
+                titulo.textContent = hallazgo.titulo;
+                const detalle = document.createElement('div');
+                detalle.textContent = hallazgo.detalle;
+                alerta.appendChild(titulo);
+                alerta.appendChild(detalle);
+                contenedor.appendChild(alerta);
+            });
         }
 
         function pintarFilegroups(filegroups) {
@@ -305,35 +407,183 @@
             });
         }
 
-        function pintar(panel) {
+        function pintarObjetos(objetos, datosMbTotal) {
+            const cuerpo = document.getElementById('tablaObjetos');
+            cuerpo.replaceChildren();
+
+            if (objetos.length === 0) {
+                cuerpo.appendChild(filaVacia(6, 'No se encontraron tablas de usuario en la base de datos.'));
+                return;
+            }
+
+            objetos.forEach(function (objeto) {
+                const fila = document.createElement('tr');
+                const filas = celda(Number(objeto.filas).toLocaleString('es-CR'));
+                filas.className = 'text-end';
+                fila.appendChild(celda(celdaObjeto(objeto)));
+                fila.appendChild(filas);
+                fila.appendChild(celda(formatMb(objeto.datosMb)));
+                fila.appendChild(celda(formatMb(objeto.indicesMb)));
+                fila.appendChild(celda(formatMb(objeto.reservadoMb)));
+                fila.appendChild(celda(barraParticipacion(Number(objeto.reservadoMb), Number(datosMbTotal))));
+                cuerpo.appendChild(fila);
+            });
+        }
+
+        function pintarPanel(panel) {
             document.getElementById('baseDatos').textContent = panel.tamano.baseDatos;
             document.getElementById('datosMb').textContent = formatMb(panel.tamano.datosMb);
             document.getElementById('logMb').textContent = formatMb(panel.tamano.logMb);
             document.getElementById('totalMb').textContent = formatMb(panel.tamano.totalMb);
 
+            pintarHallazgos(panel.hallazgos);
             pintarFilegroups(panel.filegroups);
             pintarArchivos(panel.archivos);
+            pintarObjetos(panel.objetos, panel.tamano.datosMb);
         }
 
         function mostrarError(mensaje) {
             const alerta = document.getElementById('alertaError');
             alerta.textContent = mensaje;
             alerta.classList.remove('d-none');
+            document.getElementById('hallazgos').replaceChildren();
             document.getElementById('tablaFilegroups').replaceChildren();
             document.getElementById('tablaArchivos').replaceChildren();
+            document.getElementById('tablaObjetos').replaceChildren();
         }
 
-        fetch(url, { headers: { 'Accept': 'application/json' } })
-            .then(function (respuesta) {
-                return respuesta.json().catch(function () { return {}; }).then(function (cuerpo) {
-                    if (!respuesta.ok) {
-                        throw new Error(cuerpo.mensaje || 'No fue posible cargar la información de almacenamiento.');
+        function ocultarError() {
+            document.getElementById('alertaError').classList.add('d-none');
+        }
+
+        function mostrarAvisoCrecimiento(mensaje) {
+            const alerta = document.getElementById('alertaCrecimiento');
+            alerta.textContent = mensaje;
+            alerta.classList.remove('d-none');
+        }
+
+        function ocultarAvisoCrecimiento() {
+            document.getElementById('alertaCrecimiento').classList.add('d-none');
+        }
+
+        function etiquetaFecha(texto) {
+            return new Date(texto).toLocaleString('es-CR', {
+                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function valorONulo(valor) {
+            return valor === null || valor === undefined ? null : Number(valor);
+        }
+
+        function pintarGrafico(historial) {
+            if (grafico) {
+                grafico.destroy();
+                grafico = null;
+            }
+
+            if (typeof Chart === 'undefined') {
+                mostrarAvisoCrecimiento('No se pudo cargar la biblioteca de gráficos. Verifique la conexión a internet.');
+                return;
+            }
+
+            if (historial.length === 0) {
+                mostrarAvisoCrecimiento('Todavía no hay capturas registradas para graficar.');
+                return;
+            }
+
+            grafico = new Chart(document.getElementById('graficoCrecimiento'), {
+                type: 'line',
+                data: {
+                    labels: historial.map(function (s) { return etiquetaFecha(s.fechaCaptura); }),
+                    datasets: [
+                        {
+                            label: 'Datos usados (MB)',
+                            data: historial.map(function (s) { return valorONulo(s.usadoDatosMb); }),
+                            borderColor: '#0d6efd',
+                            backgroundColor: '#0d6efd',
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Datos asignados (MB)',
+                            data: historial.map(function (s) { return valorONulo(s.datosMb); }),
+                            borderColor: '#198754',
+                            backgroundColor: '#198754',
+                            borderDash: [6, 4],
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Log usado (MB)',
+                            data: historial.map(function (s) { return valorONulo(s.usadoLogMb); }),
+                            borderColor: '#fd7e14',
+                            backgroundColor: '#fd7e14',
+                            tension: 0.2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    spanGaps: true,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'MB' } },
+                        x: { title: { display: true, text: 'Fecha de captura (dd/mm, hora)' } }
                     }
-                    return cuerpo;
+                }
+            });
+        }
+
+        function pintarCrecimiento(crecimiento) {
+            ocultarAvisoCrecimiento();
+            document.getElementById('crecCapturas').textContent = String(crecimiento.capturas);
+            document.getElementById('crecTotal').textContent = crecimiento.crecimientoUsadoMb === null
+                ? 'Sin datos suficientes'
+                : formatMb(crecimiento.crecimientoUsadoMb);
+            document.getElementById('crecRitmo').textContent = crecimiento.mbPorDia === null
+                ? 'No disponible'
+                : formatMb(crecimiento.mbPorDia) + ' / día';
+            document.getElementById('crecInterpretacion').textContent = crecimiento.interpretacion;
+            pintarGrafico(crecimiento.historial);
+        }
+
+        function mensajeDeError(respuesta, cuerpo, porDefecto) {
+            return respuesta.ok ? null : (cuerpo.mensaje || porDefecto);
+        }
+
+        function pedirJson(url, porDefecto) {
+            return fetch(url, { headers: { 'Accept': 'application/json' } })
+                .then(function (respuesta) {
+                    return respuesta.json().catch(function () { return {}; }).then(function (cuerpo) {
+                        const error = mensajeDeError(respuesta, cuerpo, porDefecto);
+                        if (error) {
+                            throw new Error(error);
+                        }
+                        return cuerpo;
+                    });
                 });
-            })
-            .then(pintar)
-            .catch(function (error) { mostrarError(error.message); });
+        }
+
+        function cargarPanel() {
+            ocultarError();
+            return pedirJson(urlPanel, 'No fue posible cargar la información de almacenamiento.')
+                .then(pintarPanel)
+                .catch(function (error) { mostrarError(error.message); });
+        }
+
+        function cargarCrecimiento() {
+            return pedirJson(urlCrecimiento, 'No fue posible cargar el historial de crecimiento.')
+                .then(pintarCrecimiento)
+                .catch(function (error) { mostrarAvisoCrecimiento(error.message); });
+        }
+
+        function cargarTodo() {
+            cargarPanel();
+            cargarCrecimiento();
+        }
+
+        document.getElementById('btnActualizar').addEventListener('click', cargarTodo);
+        cargarTodo();
     })();
 </script>
 

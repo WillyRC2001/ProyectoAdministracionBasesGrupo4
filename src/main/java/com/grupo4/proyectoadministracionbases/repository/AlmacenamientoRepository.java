@@ -2,6 +2,7 @@ package com.grupo4.proyectoadministracionbases.repository;
 
 import com.grupo4.proyectoadministracionbases.dto.almacenamiento.ArchivoBaseDatosDTO;
 import com.grupo4.proyectoadministracionbases.dto.almacenamiento.FilegroupDTO;
+import com.grupo4.proyectoadministracionbases.dto.almacenamiento.ObjetoAlmacenamientoDTO;
 import com.grupo4.proyectoadministracionbases.dto.almacenamiento.SnapshotAlmacenamientoDTO;
 import com.grupo4.proyectoadministracionbases.dto.almacenamiento.TamanoBaseDatosDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,6 +49,27 @@ public class AlmacenamientoRepository {
             FROM sys.database_files AS f
             LEFT JOIN sys.filegroups AS fg ON f.data_space_id = fg.data_space_id
             ORDER BY f.type, f.name
+            """;
+
+    private static final String SQL_OBJETOS_MAYORES = """
+            SELECT TOP (10)
+                   s.name AS esquema,
+                   t.name AS nombre,
+                   SUM(CASE WHEN ps.index_id IN (0, 1) THEN ps.row_count ELSE 0 END) AS filas,
+                   CAST(SUM(CASE WHEN ps.index_id IN (0, 1)
+                                 THEN CAST(ps.in_row_data_page_count + ps.lob_used_page_count + ps.row_overflow_used_page_count AS BIGINT)
+                                 ELSE 0 END) * 8 / 1024.0 AS DECIMAL(18,2)) AS datos_mb,
+                   CAST((SUM(CAST(ps.used_page_count AS BIGINT))
+                         - SUM(CASE WHEN ps.index_id IN (0, 1)
+                                    THEN CAST(ps.in_row_data_page_count + ps.lob_used_page_count + ps.row_overflow_used_page_count AS BIGINT)
+                                    ELSE 0 END)) * 8 / 1024.0 AS DECIMAL(18,2)) AS indices_mb,
+                   CAST(SUM(CAST(ps.reserved_page_count AS BIGINT)) * 8 / 1024.0 AS DECIMAL(18,2)) AS reservado_mb
+            FROM sys.tables AS t
+            INNER JOIN sys.schemas AS s ON s.schema_id = t.schema_id
+            INNER JOIN sys.dm_db_partition_stats AS ps ON ps.object_id = t.object_id
+            WHERE t.is_ms_shipped = 0
+            GROUP BY s.name, t.name, t.object_id
+            ORDER BY SUM(CAST(ps.reserved_page_count AS BIGINT)) DESC, t.name
             """;
 
     private static final String SQL_INSERTAR_SNAPSHOT = """
@@ -111,6 +133,16 @@ public class AlmacenamientoRepository {
                 rs.getBigDecimal("max_mb"),
                 rs.getBigDecimal("crecimiento"),
                 rs.getBoolean("crecimiento_porcentual")));
+    }
+
+    public List<ObjetoAlmacenamientoDTO> listarObjetosMayores() {
+        return jdbcTemplate.query(SQL_OBJETOS_MAYORES, (rs, i) -> new ObjetoAlmacenamientoDTO(
+                rs.getString("esquema"),
+                rs.getString("nombre"),
+                rs.getLong("filas"),
+                rs.getBigDecimal("datos_mb"),
+                rs.getBigDecimal("indices_mb"),
+                rs.getBigDecimal("reservado_mb")));
     }
 
     public int guardarSnapshot() {

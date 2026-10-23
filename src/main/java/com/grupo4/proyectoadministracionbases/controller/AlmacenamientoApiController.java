@@ -1,5 +1,6 @@
 package com.grupo4.proyectoadministracionbases.controller;
 
+import com.grupo4.proyectoadministracionbases.dto.almacenamiento.CrecimientoDTO;
 import com.grupo4.proyectoadministracionbases.dto.almacenamiento.PanelAlmacenamientoDTO;
 import com.grupo4.proyectoadministracionbases.service.AlmacenamientoService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,5 +21,10 @@ public class AlmacenamientoApiController {
     @GetMapping("/panel")
     public PanelAlmacenamientoDTO panel() {
         return almacenamientoService.construirPanel();
+    }
+
+    @GetMapping("/crecimiento")
+    public CrecimientoDTO crecimiento() {
+        return almacenamientoService.construirCrecimiento();
     }
 }
