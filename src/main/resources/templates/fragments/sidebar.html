@@ -19,11 +19,10 @@
             Estado de la instancia
         </a>
 
-        <a class="nav-link disabled">
+        <a class="nav-link"
+           th:classappend="${activePage == 'rendimiento'} ? ' active'"
+           th:href="@{/rendimiento}">
             Rendimiento
-            <span class="badge text-bg-secondary ms-1">
-                En desarrollo
-            </span>
         </a>
 
         <a class="nav-link"
