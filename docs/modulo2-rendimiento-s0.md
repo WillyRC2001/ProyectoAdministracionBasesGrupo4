@@ -9,7 +9,7 @@
 2. **Dependencias:** Usar **WebJars** para Bootstrap 5.3.8, Chart.js 4.5.1, Bootstrap Icons 1.13.2 y `webjars-locator-lite 1.1.5`. Se agrega al `pom.xml` (archivo compartido) una sola vez.
 3. **Seguridad (transversal):** Solo lectura (DMVs), sin SQL dinámico con entrada de usuario (parámetros controlados por `JdbcTemplate`), escape de salida en JS (`escapeHtml`), manejo de errores seguro sin exponer trazas internas, credenciales vía `${DB_USER}/${DB_PASSWORD}`, WebJars servidos localmente.
 4. **Marco de trabajo:** Secciones S0–S9 con incrementos parciales. Cada sección será un hito para subir cambios.
-5. **S7 sin layout:** Vista `templates/rendimiento/index.html` autocontenida (Bootstrap/Chart.js/Icons incluidos). Cuando exista el layout común del Integrante 1, se migra el contenido al layout; el resto del módulo no se toca.
+5. **S7 sin layout:** Vista `templates/rendimiento/index.html` autocontenida (Bootstrap/Chart.js/Icons incluidos). Cuando exista el layout común del Integrante 1, se migra el contenido al layout; el resto del módulo no se toca. *(Cumplido: la vista se migró al layout común y se renombró a `templates/rendimiento/panel-monitoreo-rendimiento.html`.)*
 
 ## Alcance confirmado
 
