@@ -31,11 +31,10 @@
             Almacenamiento
         </a>
 
-        <a class="nav-link disabled">
+        <a class="nav-link"
+           th:classappend="${activePage == 'respaldo'} ? ' active'"
+           th:href="@{/respaldo}">
             Respaldos
-            <span class="badge text-bg-secondary ms-1">
-                En desarrollo
-            </span>
         </a>
 
         <a class="nav-link disabled">

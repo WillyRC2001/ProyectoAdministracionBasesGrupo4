@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public class RespaldoRepository {
 
+    private static final String SQL_BASE_DATOS = "SELECT DB_NAME()";
+
     private static final String SQL_MODELO_RECUPERACION = """
             SELECT recovery_model_desc
             FROM sys.databases
@@ -71,6 +73,10 @@ public class RespaldoRepository {
 
     public RespaldoRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public String obtenerBaseDatos() {
+        return jdbcTemplate.queryForObject(SQL_BASE_DATOS, String.class);
     }
 
     public String obtenerModeloRecuperacion() {

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Respaldos')}"></head>
+
+<body>
+
+<div class="d-flex">
+
+    <div th:replace="~{fragments/sidebar :: sidebar('respaldo')}"></div>
+
+    <main class="main-content"
+          id="contenido"
+          th:attr="data-api=@{/respaldo/api/panel}">
+
+        <div class="container-fluid">
+
+            <div class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
+
+                <div>
+                    <h1>Respaldo y recuperación</h1>
+                    <p class="text-muted mb-0">
+                        Últimos respaldos exitosos, tipo, estado e historial de copias de seguridad de
+                        <span id="baseDatos" class="fw-semibold">…</span>.
+                    </p>
+                </div>
+
+                <button id="btnActualizar" type="button" class="btn btn-primary">
+                    Actualizar
+                </button>
+
+            </div>
+
+            <div id="alertaError"
+                 class="alert alert-danger d-none"
+                 role="alert"></div>
+
+            <div id="hallazgos" class="mb-4"></div>
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="card module-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Modelo de recuperación</h5>
+                            <h2 id="modelo" class="mb-2">…</h2>
+                            <p class="card-text text-muted">
+                                Define qué información registra el log y hasta qué punto se puede recuperar la base.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="card module-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Último respaldo exitoso</h5>
+                            <h2 id="ultimoFecha" class="mb-2">…</h2>
+                            <p class="card-text text-muted" id="ultimoDetalle">
+                                Respaldo más reciente de cualquier tipo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="card module-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Respaldos dañados</h5>
+                            <h2 id="danados" class="mb-2">…</h2>
+                            <p class="card-text text-muted">
+                                Entradas del historial reciente marcadas como dañadas en msdb.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card module-card mb-4">
+                <div class="card-body">
+
+                    <h5 class="card-title">Último respaldo exitoso por tipo</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Fecha de finalización</th>
+                                <th>Antigüedad</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tablaUltimos">
+                            <tr>
+                                <td colspan="3" class="text-muted">Cargando…</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card module-card mb-4">
+                <div class="card-body">
+
+                    <h5 class="card-title">Historial de respaldos</h5>
+
+                    <p class="text-muted">
+                        Últimos 20 respaldos registrados en msdb, del más reciente al más antiguo.
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>Inicio</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Tamaño</th>
+                                <th>Comprimido</th>
+                                <th>Duración</th>
+                                <th>Destino</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tablaHistorial">
+                            <tr>
+                                <td colspan="7" class="text-muted">Cargando…</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-muted small mt-3 mb-0">
+                        Limitación: SQL Server Express no incluye SQL Server Agent, por lo que los respaldos
+                        no se programan desde el motor; el módulo solo lee lo que msdb ya registró.
+                        Un respaldo "solo copia" no altera la cadena de respaldos.
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/scripts :: scripts}"></div>
+
+<script>
+    (function () {
+        const contenido = document.getElementById('contenido');
+        const urlPanel = contenido.dataset.api;
+
+        function formatMb(valor) {
+            const mb = Number(valor);
+            if (mb >= 1048576) return (mb / 1048576).toFixed(2) + ' TB';
+            if (mb >= 1024) return (mb / 1024).toFixed(2) + ' GB';
+            return mb.toFixed(2) + ' MB';
+        }
+
+        function formatFecha(texto) {
+            if (!texto) return '—';
+            return String(texto).replace('T', ' ').substring(0, 19);
+        }
+
+        function formatDuracion(segundos) {
+            const s = Number(segundos);
+            if (s < 60) return s + ' s';
+            return Math.floor(s / 60) + ' min ' + (s % 60) + ' s';
+        }
+
+        function formatAntiguedad(minutos) {
+            const m = Math.max(0, Number(minutos));
+            if (m < 60) return 'hace ' + m + (m === 1 ? ' minuto' : ' minutos');
+            if (m < 1440) {
+                const h = Math.floor(m / 60);
+                return 'hace ' + h + (h === 1 ? ' hora' : ' horas');
+            }
+            const d = Math.floor(m / 1440);
+            return 'hace ' + d + (d === 1 ? ' día' : ' días');
+        }
+
+        function celda(contenidoCelda) {
+            const td = document.createElement('td');
+            if (contenidoCelda instanceof Node) {
+                td.appendChild(contenidoCelda);
+            } else {
+                td.textContent = contenidoCelda;
+            }
+            return td;
+        }
+
+        function filaVacia(columnas, texto) {
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = columnas;
+            td.className = 'text-muted';
+            td.textContent = texto;
+            tr.appendChild(td);
+            return tr;
+        }
+
+        function insignia(texto, clase) {
+            const span = document.createElement('span');
+            span.className = 'badge ' + clase;
+            span.textContent = texto;
+            return span;
+        }
+
+        function pintarHallazgos(hallazgos) {
+            const contenedor = document.getElementById('hallazgos');
+            contenedor.replaceChildren();
+            const clases = { CRITICO: 'alert-danger', ADVERTENCIA: 'alert-warning', OK: 'alert-success' };
+            hallazgos.forEach(function (hallazgo) {
+                const alerta = document.createElement('div');
+                alerta.className = 'alert ' + (clases[hallazgo.nivel] || 'alert-secondary') + ' mb-2';
+                const titulo = document.createElement('strong');
+                titulo.textContent = hallazgo.titulo;
+                const detalle = document.createElement('div');
+                detalle.textContent = hallazgo.detalle;
+                alerta.appendChild(titulo);
+                alerta.appendChild(detalle);
+                contenedor.appendChild(alerta);
+            });
+        }
+
+        function pintarResumen(panel) {
+            document.getElementById('baseDatos').textContent = panel.baseDatos;
+            document.getElementById('modelo').textContent = panel.modeloRecuperacion;
+            const danados = panel.historial.filter(function (r) { return r.estado === 'DANADO'; }).length;
+            document.getElementById('danados').textContent = String(danados);
+
+            if (panel.ultimos.length === 0) {
+                document.getElementById('ultimoFecha').textContent = 'Ninguno';
+                document.getElementById('ultimoDetalle').textContent = 'msdb no registra respaldos exitosos.';
+                return;
+            }
+            const reciente = panel.ultimos[0];
+            document.getElementById('ultimoFecha').textContent = formatAntiguedad(reciente.minutosTranscurridos);
+            document.getElementById('ultimoDetalle').textContent =
+                reciente.tipo + ' · ' + formatFecha(reciente.fechaFin);
+        }
+
+        function pintarUltimos(ultimos) {
+            const cuerpo = document.getElementById('tablaUltimos');
+            cuerpo.replaceChildren();
+            if (ultimos.length === 0) {
+                cuerpo.appendChild(filaVacia(3, 'No hay respaldos exitosos registrados.'));
+                return;
+            }
+            ultimos.forEach(function (u) {
+                const tr = document.createElement('tr');
+                tr.appendChild(celda(insignia(u.tipo, 'text-bg-primary')));
+                tr.appendChild(celda(formatFecha(u.fechaFin)));
+                tr.appendChild(celda(formatAntiguedad(u.minutosTranscurridos)));
+                cuerpo.appendChild(tr);
+            });
+        }
+
+        function pintarHistorial(historial) {
+            const cuerpo = document.getElementById('tablaHistorial');
+            cuerpo.replaceChildren();
+            if (historial.length === 0) {
+                cuerpo.appendChild(filaVacia(7, 'No hay respaldos en el historial.'));
+                return;
+            }
+            historial.forEach(function (r) {
+                const tr = document.createElement('tr');
+                const tipo = document.createElement('span');
+                tipo.textContent = r.tipo;
+                if (r.soloCopia) {
+                    tipo.appendChild(document.createTextNode(' '));
+                    tipo.appendChild(insignia('solo copia', 'text-bg-info'));
+                }
+                const danado = r.estado === 'DANADO';
+                tr.appendChild(celda(formatFecha(r.inicio)));
+                tr.appendChild(celda(tipo));
+                tr.appendChild(celda(insignia(danado ? 'Dañado' : 'Completado',
+                    danado ? 'text-bg-danger' : 'text-bg-success')));
+                tr.appendChild(celda(formatMb(r.tamanoMb)));
+                tr.appendChild(celda(r.tamanoComprimidoMb === null ? '—' : formatMb(r.tamanoComprimidoMb)));
+                tr.appendChild(celda(formatDuracion(r.duracionSegundos)));
+                tr.appendChild(celda(r.dispositivo || '—'));
+                cuerpo.appendChild(tr);
+            });
+        }
+
+        function pintarPanel(panel) {
+            pintarResumen(panel);
+            pintarHallazgos(panel.hallazgos);
+            pintarUltimos(panel.ultimos);
+            pintarHistorial(panel.historial);
+        }
+
+        function mostrarError(mensaje) {
+            const alerta = document.getElementById('alertaError');
+            alerta.textContent = mensaje;
+            alerta.classList.remove('d-none');
+            document.getElementById('hallazgos').replaceChildren();
+        }
+
+        function ocultarError() {
+            document.getElementById('alertaError').classList.add('d-none');
+        }
+
+        function cargarPanel() {
+            ocultarError();
+            return fetch(urlPanel, { headers: { 'Accept': 'application/json' } })
+                .then(function (respuesta) {
+                    return respuesta.json().catch(function () { return {}; }).then(function (cuerpo) {
+                        if (!respuesta.ok) {
+                            throw new Error(cuerpo.mensaje || 'No fue posible cargar la información de respaldos.');
+                        }
+                        return cuerpo;
+                    });
+                })
+                .then(pintarPanel)
+                .catch(function (error) { mostrarError(error.message); });
+        }
+
+        document.getElementById('btnActualizar').addEventListener('click', cargarPanel);
+        cargarPanel();
+    })();
+</script>
+
+</body>
+</html>
