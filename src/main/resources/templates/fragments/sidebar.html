@@ -37,18 +37,16 @@
             Respaldos
         </a>
 
-        <a class="nav-link disabled">
+        <a class="nav-link"
+           th:classappend="${activePage == 'auditoria'} ? ' active'"
+           th:href="@{/auditoria}">
             Auditoría
-            <span class="badge text-bg-secondary ms-1">
-                En desarrollo
-            </span>
         </a>
 
-        <a class="nav-link disabled">
+        <a class="nav-link"
+           th:classappend="${activePage == 'mantenimiento'} ? ' active'"
+           th:href="@{/mantenimiento}">
             Mantenimiento
-            <span class="badge text-bg-secondary ms-1">
-                En desarrollo
-            </span>
         </a>
 
     </nav>
