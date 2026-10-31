@@ -28,7 +28,10 @@ public class RendimientoRepository {
 
     private static final String SQL_CONSULTAS_BASE = """
             SELECT TOP (?)
-                   DB_NAME(st.dbid) AS base_datos,
+                   COALESCE(DB_NAME(st.dbid),
+                            DB_NAME((SELECT TOP (1) CAST(pa.value AS int)
+                                     FROM sys.dm_exec_plan_attributes(qs.plan_handle) AS pa
+                                     WHERE pa.attribute = N'dbid'))) AS base_datos,
                    CONVERT(nvarchar(max), SUBSTRING(st.text,
                         (qs.statement_start_offset / 2) + 1,
                         (CASE qs.statement_end_offset
@@ -46,6 +49,10 @@ public class RendimientoRepository {
             FROM sys.dm_exec_query_stats AS qs
             CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) AS st
             WHERE qs.execution_count > 0
+             AND st.text NOT LIKE N'%dm_exec_query_stats%'
+             AND st.text NOT LIKE N'%dm_exec_sessions%'
+             AND st.text NOT LIKE N'%dm_exec_requests%'
+             AND st.text NOT LIKE N'%dm_os_sys_info%'
             """;
 
     private static final String SQL_CONSULTAS_MAYOR_CPU =
@@ -69,6 +76,7 @@ public class RendimientoRepository {
                    CONVERT(varchar(23), s.last_request_start_time, 121) AS ultima_peticion
             FROM sys.dm_exec_sessions AS s
             WHERE s.is_user_process = 1
+            AND s.session_id <> @@SPID
             ORDER BY s.cpu_time DESC
             """;
 
@@ -101,7 +109,7 @@ public class RendimientoRepository {
             "SELECT ISNULL(SUM(total_worker_time), 0) / 1000.0 FROM sys.dm_exec_query_stats";
 
     private static final String SQL_PROMEDIO_TIEMPO = """
-            SELECT ISNULL(AVG(total_elapsed_time * 1.0 / NULLIF(execution_count, 0)), 0) / 1000.0
+           SELECT ISNULL(SUM(total_elapsed_time) * 1.0 / NULLIF(SUM(execution_count), 0), 0) / 1000.0
             FROM sys.dm_exec_query_stats
             WHERE execution_count > 0
             """;

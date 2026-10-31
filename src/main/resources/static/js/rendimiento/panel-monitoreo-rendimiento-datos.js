@@ -359,7 +359,7 @@
         texto("rx-contador-consultas", consultas ? consultas.length : 0);
 
         if (!consultas || consultas.length === 0) {
-            cuerpo.innerHTML = '<tr><td colspan="8" class="rx-vacio">' +
+            cuerpo.innerHTML = '<tr><td colspan="10" class="rx-vacio">' +
                 'No hay consultas registradas en la caché de planes.</td></tr>';
             return;
         }
@@ -374,6 +374,10 @@
                 '<td class="rx-num">' + formatoMs(consulta.cpuPromedioMs) + "</td>" +
                 '<td class="rx-num">' + (consulta.porcentajeCpu || 0).toFixed(1) + " %</td>" +
                 '<td class="rx-num">' + numero(consulta.lecturasLogicas) + "</td>" +
+                '<td class="rx-num">' + formatoMs(consulta.cpuPromedioMs) + "</td>" +
+                '<td class="rx-num">' + formatoMs(consulta.tiempoPromedioMs) + "</td>" +
+                '<td class="rx-num">' + formatoMs(consulta.tiempoTotalMs) + "</td>" +
+                '<td class="rx-num">' + (consulta.porcentajeCpu || 0).toFixed(1) + " %</td>" +
                 "</tr>";
         }).join("");
     }
