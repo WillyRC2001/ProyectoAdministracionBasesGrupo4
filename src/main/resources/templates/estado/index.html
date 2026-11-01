@@ -4,167 +4,388 @@
 
 <head th:replace="~{fragments/head :: head('Estado de la instancia')}"></head>
 
-<body>
+<body class="modulo-cuerpo">
 
 <div class="d-flex">
 
+    <!-- Sidebar común -->
     <div th:replace="~{fragments/sidebar :: sidebar('estado')}"></div>
 
     <main class="main-content">
 
-        <div class="container-fluid">
+        <div class="modulo-escenario">
 
-            <div class="mb-4">
-                <h1>Estado general de la instancia</h1>
+            <!-- =========================================================
+                 CABECERA DEL MÓDULO
+                 ========================================================= -->
+            <section class="modulo-seccion">
 
-                <p class="text-muted">
-                    Información operativa de la instancia de Microsoft SQL Server.
-                </p>
-            </div>
+                <div class="modulo-panel modulo-cabecera">
 
-            <div class="row g-4">
+                    <div class="modulo-cabecera-contenido">
 
-                <div class="col-md-6 col-xl-4">
-                    <div class="card module-card h-100">
-                        <div class="card-body">
-
-                            <h5 class="card-title">
-                                Servidor e instancia
-                            </h5>
-
-                            <p>
-                                <strong>Servidor:</strong>
-                                <span th:text="${estado.servidor}"></span>
-                            </p>
-
-                            <p>
-                                <strong>Instancia:</strong>
-                                <span th:text="${estado.instancia}"></span>
-                            </p>
-
-                            <p>
-                                <strong>SGBD:</strong>
-                                <span th:text="${estado.tipoSGBD}"></span>
-                            </p>
-
-                            <p>
-                                <strong>Versión:</strong>
-                                <span th:text="${estado.version}"></span>
-                            </p>
-
-                            <p>
-                                <strong>Edición:</strong>
-                                <span th:text="${estado.edicion}"></span>
-                            </p>
-
+                        <div class="modulo-icono">
+                            <i class="bi bi-server"></i>
                         </div>
-                    </div>
-                </div>
 
+                        <div>
+                            <div class="d-flex align-items-center flex-wrap gap-2">
 
-                <div class="col-md-6 col-xl-4">
-                    <div class="card module-card h-100">
-                        <div class="card-body">
+                                <h1 class="modulo-titulo">
+                                    Estado de la instancia
+                                </h1>
 
-                            <h5 class="card-title">
-                                Estado operativo
-                            </h5>
-
-                            <p>
-                                <strong>Estado:</strong>
-
-                                <span class="badge text-bg-success"
-                                      th:text="${estado.estado}">
+                                <span class="modulo-etiqueta">
+                                    Módulo 1
                                 </span>
-                            </p>
-
-                            <p>
-                                <strong>Fecha de inicio:</strong><br>
-
-                                <span th:text="${estado.fechaInicio}">
-                                </span>
-                            </p>
-
-                            <p>
-                                <strong>Tiempo de actividad:</strong><br>
-
-                                <span th:text="${estado.tiempoActividad}">
-                                </span>
-                            </p>
-
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col-md-6 col-xl-4">
-                    <div class="card module-card h-100">
-                        <div class="card-body">
-
-                            <h5 class="card-title">
-                                Memoria
-                            </h5>
-
-                            <p>
-                                <strong>Utilizada:</strong>
-                                <span th:text="${estado.memoriaUtilizadaMB}">
-                                </span>
-                                MB
-                            </p>
-
-                            <p>
-                                <strong>Asignada:</strong>
-                                <span th:text="${estado.memoriaAsignadaMB}">
-                                </span>
-                                MB
-                            </p>
-
-                            <p>
-                                <strong>Uso:</strong>
-                                <span th:text="${estado.porcentajeMemoria}">
-                                </span>
-                                %
-                            </p>
-
-                            <div class="progress">
-
-                                <div class="progress-bar"
-                                     role="progressbar"
-                                     th:style="'width:' + ${estado.porcentajeMemoria} + '%'"
-                                     th:text="${estado.porcentajeMemoria} + '%'">
-                                </div>
 
                             </div>
 
+                            <p class="modulo-subtitulo">
+                                Información operativa de Microsoft SQL Server
+                            </p>
                         </div>
+
                     </div>
+
+                    <div>
+                        <span class="modulo-badge modulo-ok"
+                              th:text="${estado.estado}">
+                            Activo
+                        </span>
+                    </div>
+
                 </div>
 
-            </div>
+            </section>
 
 
-            <div class="card module-card mt-4">
+            <!-- =========================================================
+                 INFORMACIÓN PRINCIPAL
+                 ========================================================= -->
+            <section class="modulo-seccion">
 
-                <div class="card-body">
+                <h2 class="modulo-titulo-seccion">
+                    <i class="bi bi-hdd-stack"></i>
+                    Información de la instancia
+                </h2>
 
-                    <h5 class="card-title">
-                        Bases de datos administradas
-                    </h5>
+                <div class="modulo-grid">
 
-                    <div class="table-responsive">
+                    <!-- Servidor -->
+                    <article class="modulo-panel modulo-kpi">
 
-                        <table class="table table-hover align-middle">
+                        <span class="modulo-kpi-label">
+                            Servidor
+                        </span>
+
+                        <span class="modulo-kpi-valor"
+                              th:text="${estado.servidor}">
+                            Servidor
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Nombre del equipo host
+                        </span>
+
+                    </article>
+
+
+                    <!-- Instancia -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Instancia
+                        </span>
+
+                        <span class="modulo-kpi-valor"
+                              th:text="${estado.instancia}">
+                            SQLEXPRESS
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Instancia activa de SQL Server
+                        </span>
+
+                    </article>
+
+
+                    <!-- SGBD -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            SGBD
+                        </span>
+
+                        <span class="modulo-kpi-valor"
+                              th:text="${estado.tipoSGBD}">
+                            Microsoft SQL Server
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Motor de base de datos
+                        </span>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 DETALLES TÉCNICOS
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    <i class="bi bi-info-circle"></i>
+                    Detalles técnicos
+                </h2>
+
+                <div class="modulo-grid">
+
+                    <!-- Versión -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Versión
+                        </span>
+
+                        <span class="modulo-kpi-valor"
+                              th:text="${estado.version}">
+                            17.0
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Versión instalada del motor
+                        </span>
+
+                    </article>
+
+
+                    <!-- Edición -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Edición
+                        </span>
+
+                        <span class="modulo-kpi-valor"
+                              th:text="${estado.edicion}">
+                            Express Edition
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Edición de SQL Server
+                        </span>
+
+                    </article>
+
+
+                    <!-- Estado -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Estado del servicio
+                        </span>
+
+                        <span class="modulo-kpi-valor">
+
+                            <span class="modulo-badge modulo-ok"
+                                  th:text="${estado.estado}">
+                                Running
+                            </span>
+
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Estado operativo actual
+                        </span>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 TIEMPO DE ACTIVIDAD
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    <i class="bi bi-clock-history"></i>
+                    Actividad de la instancia
+                </h2>
+
+                <div class="modulo-grid">
+
+                    <!-- Inicio -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Fecha de inicio
+                        </span>
+
+                        <span class="modulo-kpi-valor"
+                              th:text="${estado.fechaInicio}">
+                            Fecha
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Último inicio del servicio
+                        </span>
+
+                    </article>
+
+
+                    <!-- Uptime -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Tiempo de actividad
+                        </span>
+
+                        <span class="modulo-kpi-valor"
+                              th:text="${estado.tiempoActividad}">
+                            Tiempo
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Tiempo transcurrido desde el último inicio
+                        </span>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 MEMORIA
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    <i class="bi bi-memory"></i>
+                    Uso de memoria
+                </h2>
+
+                <div class="modulo-grid">
+
+                    <!-- Memoria utilizada -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Memoria utilizada
+                        </span>
+
+                        <span class="modulo-kpi-valor">
+                            <span th:text="${estado.memoriaUtilizadaMB}">
+                                0
+                            </span>
+                            MB
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Memoria actualmente comprometida
+                        </span>
+
+                    </article>
+
+
+                    <!-- Memoria asignada -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Memoria asignada
+                        </span>
+
+                        <span class="modulo-kpi-valor">
+                            <span th:text="${estado.memoriaAsignadaMB}">
+                                0
+                            </span>
+                            MB
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Objetivo de memoria del motor
+                        </span>
+
+                    </article>
+
+
+                    <!-- Porcentaje -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Porcentaje de uso
+                        </span>
+
+                        <span class="modulo-kpi-valor">
+                            <span th:text="${estado.porcentajeMemoria}">
+                                0
+                            </span>
+                            %
+                        </span>
+
+                        <div class="modulo-progreso mt-3">
+
+                            <div class="modulo-progreso-barra"
+                                 th:style="'width:' + ${estado.porcentajeMemoria} + '%'">
+                            </div>
+
+                        </div>
+
+                        <span class="modulo-kpi-detalle">
+                            Uso respecto a la memoria asignada
+                        </span>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 BASES DE DATOS
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    <i class="bi bi-database"></i>
+                    Bases de datos administradas
+                </h2>
+
+                <div class="modulo-panel">
+
+                    <div class="modulo-tabla-contenedor">
+
+                        <table class="modulo-tabla">
 
                             <thead>
                             <tr>
+                                <th>#</th>
                                 <th>Nombre de la base de datos</th>
                             </tr>
                             </thead>
 
                             <tbody>
 
-                            <tr th:each="base : ${estado.basesDatos}">
-                                <td th:text="${base}"></td>
+                            <tr th:each="base, estadoBase : ${estado.basesDatos}">
+
+                                <td th:text="${estadoBase.count}">
+                                    1
+                                </td>
+
+                                <td th:text="${base}">
+                                    Base de datos
+                                </td>
+
                             </tr>
 
                             </tbody>
@@ -175,7 +396,7 @@
 
                 </div>
 
-            </div>
+            </section>
 
         </div>
 

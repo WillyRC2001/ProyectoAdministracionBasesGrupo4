@@ -4,7 +4,7 @@
 
 <head th:replace="~{fragments/head :: head('Mantenimiento preventivo')}"></head>
 
-<body>
+<body class="modulo-cuerpo">
 
 <div class="d-flex">
 
@@ -12,159 +12,547 @@
 
     <main class="main-content">
 
-        <div class="container-fluid">
+        <div class="modulo-escenario">
 
-            <div class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div>
-                    <h1>Mantenimiento preventivo</h1>
-                    <p class="text-muted mb-0">
-                        Actualización de estadísticas y corrección de objetos con problemas en Microsoft SQL Server.
-                    </p>
+            <!-- =========================================================
+                 CABECERA
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <div class="modulo-panel modulo-cabecera">
+
+                    <div class="modulo-cabecera-contenido">
+
+                        <div>
+
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+
+                                <h1 class="modulo-titulo">
+                                    Mantenimiento preventivo
+                                </h1>
+
+                                <span class="modulo-etiqueta">
+                                    Módulo 6
+                                </span>
+
+                            </div>
+
+                            <p class="modulo-subtitulo">
+                                Estadísticas · recompilación · reconstrucción de índices
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <a th:href="@{/mantenimiento}"
+                       class="modulo-boton text-decoration-none">
+                        Actualizar
+                    </a>
+
                 </div>
-                <a th:href="@{/mantenimiento}" class="btn btn-outline-primary">Actualizar</a>
+
+            </section>
+
+
+            <!-- =========================================================
+                 MENSAJES
+                 ========================================================= -->
+
+            <div class="modulo-panel p-3 mb-3"
+                 style="border-left: 3px solid #c2c9cf;"
+                 role="alert"
+                 th:if="${resultado != null}">
+
+                <strong style="color:#e4e8eb;">
+                    Operación completada
+                </strong>
+
+                <div class="modulo-kpi-detalle mt-1"
+                     th:text="${resultado}">
+                </div>
+
             </div>
 
-            <div class="alert alert-success" role="alert" th:if="${resultado != null}" th:text="${resultado}"></div>
-            <div class="alert alert-danger" role="alert" th:if="${error != null}" th:text="${error}"></div>
+
+            <div class="modulo-panel p-3 mb-3"
+                 style="border-left: 3px solid #a4635c;"
+                 role="alert"
+                 th:if="${error != null}">
+
+                <strong style="color:#bf837c;">
+                    Error
+                </strong>
+
+                <div class="modulo-kpi-detalle mt-1"
+                     th:text="${error}">
+                </div>
+
+            </div>
+
 
             <th:block th:if="${panel != null}">
 
-                <!-- Estadísticas -->
-                <div class="card module-card mb-4">
-                    <div class="card-body">
 
-                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                            <div>
-                                <h5 class="card-title mb-1">
-                                    Estadísticas de las tablas
-                                    <span class="fw-normal text-muted" th:text="'(' + ${panel.baseDatos()} + ')'"></span>
-                                </h5>
-                                <p class="text-muted mb-0">
-                                    Las estadísticas le indican al optimizador cuántas filas hay y cómo se distribuyen.
-                                    Si cambian muchas filas y no se actualizan, las consultas pueden usar planes malos.
-                                    Se marca <strong>advertencia</strong> desde 10 % de filas modificadas y
-                                    <strong>crítico</strong> desde 20 %.
-                                </p>
+                <!-- =====================================================
+                     INFORMACIÓN GENERAL
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Estado del mantenimiento
+                    </h2>
+
+                    <div class="modulo-grid">
+
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Base de datos
+                            </span>
+
+                            <span class="modulo-kpi-valor"
+                                  th:text="${panel.baseDatos()}">
+                                Base
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Base de datos actualmente analizada
+                            </span>
+
+                        </article>
+
+
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Tablas analizadas
+                            </span>
+
+                            <span class="modulo-kpi-valor"
+                                  th:text="${#lists.size(panel.estadisticas())}">
+                                0
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Tablas de usuario con información estadística
+                            </span>
+
+                        </article>
+
+
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Objetos con intervención
+                            </span>
+
+                            <span class="modulo-kpi-valor"
+                                  th:text="${#lists.size(panel.objetos())}">
+                                0
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Objetos que requieren revisión o corrección
+                            </span>
+
+                        </article>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =====================================================
+                     ESTADÍSTICAS
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <div class="d-flex justify-content-between
+                                align-items-end flex-wrap gap-3 mb-3">
+
+                        <div>
+
+                            <h2 class="modulo-titulo-seccion mb-2">
+                                Estadísticas de las tablas
+                            </h2>
+
+                            <p class="modulo-kpi-detalle mb-0">
+                                Las estadísticas permiten al optimizador estimar
+                                cuántas filas existen y cómo se distribuyen.
+                                Se considera advertencia desde 10 % de filas
+                                modificadas y crítico desde 20 %.
+                            </p>
+
+                        </div>
+
+
+                        <form th:action="@{/mantenimiento/estadisticas/todas}"
+                              method="post"
+                              onsubmit="return confirm(
+                                  '¿Actualizar las estadísticas de todas las tablas?'
+                              );">
+
+                            <button type="submit"
+                                    class="modulo-boton">
+                                Actualizar todas
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                    <div class="modulo-panel">
+
+                        <div class="p-3">
+
+                            <div class="modulo-tabla-contenedor">
+
+                                <table class="modulo-tabla">
+
+                                    <thead>
+                                    <tr>
+                                        <th>Tabla</th>
+                                        <th>Estadísticas</th>
+                                        <th>Última actualización</th>
+                                        <th>Filas</th>
+                                        <th>Modificaciones</th>
+                                        <th>% modificado</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <tr th:each="e : ${panel.estadisticas()}">
+
+                                        <td>
+                                            <strong th:text="${e.esquema() + '.' + e.tabla()}">
+                                            </strong>
+                                        </td>
+
+                                        <td th:text="${e.cantidadEstadisticas()}">
+                                        </td>
+
+                                        <td th:text="${e.ultimaActualizacion() != null}
+                                            ? ${#temporals.format(
+                                                e.ultimaActualizacion(),
+                                                'dd/MM/yyyy HH:mm'
+                                              )}
+                                            : 'Sin estadísticas'">
+                                        </td>
+
+                                        <td th:text="${e.filas()}">
+                                        </td>
+
+                                        <td th:text="${e.modificaciones()}">
+                                        </td>
+
+                                        <td th:text="${#numbers.formatDecimal(
+                                                e.porcentajeModificado(),
+                                                1,
+                                                1
+                                              ) + ' %'}">
+                                        </td>
+
+
+                                        <!-- Estado -->
+                                        <td>
+
+                                            <span class="modulo-badge"
+                                                  th:classappend="${e.nivel() == 'CRITICO'}
+                                                        ? ' modulo-critico'
+                                                        : (${e.nivel() == 'ADVERTENCIA'}
+                                                            ? ' modulo-aviso'
+                                                            : (${e.nivel() == 'INFO'}
+                                                                ? ''
+                                                                : ' modulo-ok'))"
+                                                  th:text="${e.nivel() == 'INFO'}
+                                                        ? 'SIN ESTADÍSTICAS'
+                                                        : ${e.nivel()}">
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Acción -->
+                                        <td>
+
+                                            <form th:if="${e.cantidadEstadisticas() > 0}"
+                                                  th:action="@{/mantenimiento/estadisticas}"
+                                                  method="post">
+
+                                                <input type="hidden"
+                                                       name="esquema"
+                                                       th:value="${e.esquema()}">
+
+                                                <input type="hidden"
+                                                       name="tabla"
+                                                       th:value="${e.tabla()}">
+
+                                                <button type="submit"
+                                                        class="modulo-boton">
+                                                    Actualizar
+                                                </button>
+
+                                            </form>
+
+                                            <span th:unless="${e.cantidadEstadisticas() > 0}"
+                                                  class="modulo-kpi-detalle">
+                                                No disponible
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+
+                                    <tr th:if="${#lists.isEmpty(panel.estadisticas())}">
+
+                                        <td colspan="8">
+                                            No hay tablas de usuario en la base de datos.
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+
+                                </table>
+
                             </div>
 
-                            <form th:action="@{/mantenimiento/estadisticas/todas}" method="post"
-                                  onsubmit="return confirm('¿Actualizar las estadísticas de todas las tablas?');">
-                                <button type="submit" class="btn btn-primary">
-                                    Actualizar todas
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Tabla</th>
-                                    <th>Estadísticas</th>
-                                    <th>Última actualización</th>
-                                    <th>Filas</th>
-                                    <th>Modificaciones</th>
-                                    <th>% modificado</th>
-                                    <th>Estado</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="e : ${panel.estadisticas()}">
-                                    <td th:text="${e.esquema() + '.' + e.tabla()}"></td>
-                                    <td th:text="${e.cantidadEstadisticas()}"></td>
-                                    <td th:text="${e.ultimaActualizacion() != null} ? ${#temporals.format(e.ultimaActualizacion(), 'dd/MM/yyyy HH:mm')} : 'Sin estadísticas'"></td>
-                                    <td th:text="${e.filas()}"></td>
-                                    <td th:text="${e.modificaciones()}"></td>
-                                    <td th:text="${#numbers.formatDecimal(e.porcentajeModificado(), 1, 1)} + ' %'"></td>
-                                    <td>
-                                        <span class="badge"
-                                              th:classappend="${e.nivel() == 'CRITICO'} ? 'text-bg-danger' : (${e.nivel() == 'ADVERTENCIA'} ? 'text-bg-warning' : (${e.nivel() == 'INFO'} ? 'text-bg-secondary' : 'text-bg-success'))"
-                                              th:text="${e.nivel() == 'INFO'} ? 'SIN ESTADÍSTICAS' : ${e.nivel()}"></span>
-                                    </td>
-                                    <td class="text-end">
-                                        <form th:if="${e.cantidadEstadisticas() > 0}"
-                                              th:action="@{/mantenimiento/estadisticas}" method="post">
-                                            <input type="hidden" name="esquema" th:value="${e.esquema()}">
-                                            <input type="hidden" name="tabla" th:value="${e.tabla()}">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                Actualizar
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(panel.estadisticas())}">
-                                    <td colspan="8" class="text-muted">No hay tablas de usuario en la base de datos.</td>
-                                </tr>
-                                </tbody>
-                            </table>
                         </div>
 
                     </div>
-                </div>
 
-                <!-- Objetos con problemas -->
-                <div class="card module-card mb-4">
-                    <div class="card-body">
+                </section>
 
-                        <h5 class="card-title">Objetos que requieren intervención</h5>
-                        <p class="text-muted">
-                            <strong>Recompilar</strong> ejecuta <code>sp_refreshsqlmodule</code>, que vuelve a validar
-                            el objeto contra el catálogo (si falta una tabla, créela primero y luego recompile).
-                            <strong>Reconstruir</strong> ejecuta <code>ALTER INDEX ... REBUILD</code>, que vuelve a
-                            habilitar un índice deshabilitado.
-                        </p>
 
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Objeto</th>
-                                    <th>Tipo</th>
-                                    <th>Elemento afectado</th>
-                                    <th>Problema</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="o : ${panel.objetos()}">
-                                    <td th:text="${o.esquema() + '.' + o.objeto()}"></td>
-                                    <td th:text="${o.tipo()}"></td>
-                                    <td th:text="${o.elemento()}"></td>
-                                    <td th:text="${o.problema()}"></td>
-                                    <td class="text-end">
+                <!-- =====================================================
+                     REFERENCIA DE NIVELES
+                     ===================================================== -->
+                <section class="modulo-seccion">
 
-                                        <form th:if="${o.recompilable()}"
-                                              th:action="@{/mantenimiento/recompilar}" method="post">
-                                            <input type="hidden" name="esquema" th:value="${o.esquema()}">
-                                            <input type="hidden" name="objeto" th:value="${o.objeto()}">
-                                            <button type="submit" class="btn btn-sm btn-primary">Recompilar</button>
-                                        </form>
+                    <h2 class="modulo-titulo-seccion">
+                        Umbrales de mantenimiento
+                    </h2>
 
-                                        <form th:if="${o.reconstruible()}"
-                                              th:action="@{/mantenimiento/reconstruir-indice}" method="post">
-                                            <input type="hidden" name="esquema" th:value="${o.esquema()}">
-                                            <input type="hidden" name="tabla" th:value="${o.objeto()}">
-                                            <input type="hidden" name="indice" th:value="${o.elemento()}">
-                                            <button type="submit" class="btn btn-sm btn-primary">Reconstruir</button>
-                                        </form>
 
-                                        <span th:unless="${o.recompilable() or o.reconstruible()}"
-                                              class="text-muted small">Intervención manual</span>
+                    <div class="modulo-grid">
 
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(panel.objetos())}">
-                                    <td colspan="5" class="text-success">
-                                        No se detectaron objetos que requieran intervención.
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Estado normal
+                            </span>
+
+                            <span class="modulo-kpi-valor">
+                                <span class="modulo-badge modulo-ok">
+                                    OK
+                                </span>
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Menos del 10 % de filas modificadas
+                            </span>
+
+                        </article>
+
+
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Atención
+                            </span>
+
+                            <span class="modulo-kpi-valor">
+                                <span class="modulo-badge modulo-aviso">
+                                    Advertencia
+                                </span>
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                10 % o más de filas modificadas
+                            </span>
+
+                        </article>
+
+
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Intervención recomendada
+                            </span>
+
+                            <span class="modulo-kpi-valor">
+                                <span class="modulo-badge modulo-critico">
+                                    Crítico
+                                </span>
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                20 % o más de filas modificadas
+                            </span>
+
+                        </article>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =====================================================
+                     OBJETOS CON PROBLEMAS
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Objetos que requieren intervención
+                    </h2>
+
+
+                    <div class="modulo-panel">
+
+                        <div class="p-3">
+
+                            <p class="modulo-kpi-detalle mb-2">
+                                <strong style="color:#e4e8eb;">
+                                    Recompilar
+                                </strong>
+                                ejecuta
+                                <code>sp_refreshsqlmodule</code>
+                                para volver a validar el objeto contra
+                                el catálogo de SQL Server.
+                            </p>
+
+                            <p class="modulo-kpi-detalle mb-4">
+                                <strong style="color:#e4e8eb;">
+                                    Reconstruir
+                                </strong>
+                                ejecuta
+                                <code>ALTER INDEX ... REBUILD</code>
+                                para volver a habilitar un índice
+                                deshabilitado.
+                            </p>
+
+
+                            <div class="modulo-tabla-contenedor">
+
+                                <table class="modulo-tabla">
+
+                                    <thead>
+                                    <tr>
+                                        <th>Objeto</th>
+                                        <th>Tipo</th>
+                                        <th>Elemento afectado</th>
+                                        <th>Problema</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <tr th:each="o : ${panel.objetos()}">
+
+                                        <td>
+                                            <strong th:text="${o.esquema() + '.' + o.objeto()}">
+                                            </strong>
+                                        </td>
+
+                                        <td th:text="${o.tipo()}">
+                                        </td>
+
+                                        <td th:text="${o.elemento()}">
+                                        </td>
+
+                                        <td th:text="${o.problema()}">
+                                        </td>
+
+
+                                        <td>
+
+                                            <!-- Recompilar -->
+                                            <form th:if="${o.recompilable()}"
+                                                  th:action="@{/mantenimiento/recompilar}"
+                                                  method="post">
+
+                                                <input type="hidden"
+                                                       name="esquema"
+                                                       th:value="${o.esquema()}">
+
+                                                <input type="hidden"
+                                                       name="objeto"
+                                                       th:value="${o.objeto()}">
+
+                                                <button type="submit"
+                                                        class="modulo-boton">
+                                                    Recompilar
+                                                </button>
+
+                                            </form>
+
+
+                                            <!-- Reconstruir -->
+                                            <form th:if="${o.reconstruible()}"
+                                                  th:action="@{/mantenimiento/reconstruir-indice}"
+                                                  method="post">
+
+                                                <input type="hidden"
+                                                       name="esquema"
+                                                       th:value="${o.esquema()}">
+
+                                                <input type="hidden"
+                                                       name="tabla"
+                                                       th:value="${o.objeto()}">
+
+                                                <input type="hidden"
+                                                       name="indice"
+                                                       th:value="${o.elemento()}">
+
+                                                <button type="submit"
+                                                        class="modulo-boton">
+                                                    Reconstruir
+                                                </button>
+
+                                            </form>
+
+
+                                            <span th:unless="${o.recompilable()
+                                                              or o.reconstruible()}"
+                                                  class="modulo-badge modulo-aviso">
+                                                Intervención manual
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+
+                                    <tr th:if="${#lists.isEmpty(panel.objetos())}">
+
+                                        <td colspan="5">
+
+                                            <span class="modulo-badge modulo-ok">
+                                                Sin problemas detectados
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
                         </div>
 
                     </div>
-                </div>
+
+                </section>
 
             </th:block>
 
@@ -173,6 +561,7 @@
     </main>
 
 </div>
+
 
 <div th:replace="~{fragments/scripts :: scripts}"></div>
 

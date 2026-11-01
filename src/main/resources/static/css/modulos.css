@@ -1,0 +1,483 @@
+/* =========================================================
+   ESTILO COMÚN PARA LOS MÓDULOS
+   Inspirado en el diseño del módulo de rendimiento
+   ========================================================= */
+
+body.modulo-cuerpo {
+    background-color: #0b0d10;
+    color: #b4bac1;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* =========================================================
+   CONTENEDOR GENERAL
+   ========================================================= */
+
+.modulo-escenario {
+    position: relative;
+    min-height: 100vh;
+}
+
+.modulo-seccion {
+    margin-bottom: 22px;
+}
+
+/* =========================================================
+   PANELES
+   ========================================================= */
+
+.modulo-panel {
+    position: relative;
+    background: linear-gradient(
+            170deg,
+            rgba(29, 32, 37, 0.66),
+            rgba(19, 21, 25, 0.56)
+    );
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 14px;
+
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+
+    transition:
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+}
+
+.modulo-panel:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+
+    box-shadow:
+            0 16px 40px rgba(0, 0, 0, 0.50);
+}
+
+
+/* =========================================================
+   CABECERA DEL MÓDULO
+   ========================================================= */
+
+.modulo-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+
+    padding: 20px 22px;
+
+    border-left: 3px solid #9fadba;
+    border-radius: 0 14px 14px 0;
+}
+
+.modulo-cabecera-contenido {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.modulo-icono {
+    display: grid;
+    place-items: center;
+
+    width: 48px;
+    height: 48px;
+
+    flex: 0 0 48px;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    color: #9fadba;
+
+    font-size: 1.35rem;
+}
+
+.modulo-titulo {
+    margin: 0;
+
+    color: #eef1f3;
+
+    font-family: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+
+    font-size: clamp(1.1rem, 2.2vw, 1.55rem);
+
+    font-weight: 700;
+
+    letter-spacing: 0.06em;
+
+    text-transform: uppercase;
+}
+
+.modulo-subtitulo {
+    margin: 6px 0 0;
+
+    color: #838a92;
+
+    font-family:
+            'JetBrains Mono',
+            'Consolas',
+            monospace;
+
+    font-size: 0.72rem;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+}
+
+.modulo-etiqueta {
+    display: inline-block;
+
+    margin-left: 8px;
+
+    padding: 3px 9px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius: 5px;
+
+    background: rgba(255, 255, 255, 0.03);
+
+    color: #9aa2aa;
+
+    font-family:
+            'JetBrains Mono',
+            'Consolas',
+            monospace;
+
+    font-size: 0.62rem;
+
+    letter-spacing: 0.14em;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   TÍTULOS DE SECCIÓN
+   ========================================================= */
+
+.modulo-titulo-seccion {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 0 0 14px;
+
+    color: #dfe3e7;
+
+    font-family: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+
+    font-size: 0.84rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+
+    text-transform: uppercase;
+}
+
+.modulo-titulo-seccion i {
+    color: #9fadba;
+}
+
+.modulo-titulo-seccion::after {
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0.14),
+            transparent
+    );
+}
+
+
+/* =========================================================
+   TARJETAS / KPI
+   ========================================================= */
+
+.modulo-grid {
+    display: grid;
+
+    grid-template-columns:
+            repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 14px;
+}
+
+.modulo-kpi {
+    padding: 16px;
+
+    overflow: hidden;
+}
+
+.modulo-kpi-label {
+    color: #7b828a;
+
+    font-family:
+            'JetBrains Mono',
+            'Consolas',
+            monospace;
+
+    font-size: 0.62rem;
+
+    letter-spacing: 0.14em;
+
+    text-transform: uppercase;
+}
+
+.modulo-kpi-valor {
+    display: block;
+
+    margin-top: 8px;
+
+    color: #e4e8eb;
+
+    font-family:
+            'Orbitron',
+            'Segoe UI',
+            sans-serif;
+
+    font-size: 1.4rem;
+
+    font-weight: 700;
+}
+
+.modulo-kpi-detalle {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #6b737b;
+
+    font-family:
+            'JetBrains Mono',
+            'Consolas',
+            monospace;
+
+    font-size: 0.66rem;
+}
+
+
+/* =========================================================
+   TABLAS
+   ========================================================= */
+
+.modulo-tabla-contenedor {
+    overflow-x: auto;
+}
+
+.modulo-tabla {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-family:
+            'JetBrains Mono',
+            'Consolas',
+            monospace;
+
+    font-size: 0.73rem;
+}
+
+.modulo-tabla thead th {
+    padding: 11px 12px;
+
+    background: #14171b;
+
+    border-bottom:
+            1px solid rgba(255, 255, 255, 0.14);
+
+    color: #838a92;
+
+    font-size: 0.64rem;
+
+    font-weight: 600;
+
+    letter-spacing: 0.12em;
+
+    text-align: left;
+
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+.modulo-tabla tbody td {
+    padding: 10px 12px;
+
+    border-bottom:
+            1px solid rgba(255, 255, 255, 0.05);
+
+    color: #bcc2c8;
+}
+
+.modulo-tabla tbody tr {
+    transition: background 0.15s ease;
+}
+
+.modulo-tabla tbody tr:hover {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   ESTADOS / BADGES
+   ========================================================= */
+
+.modulo-badge {
+    display: inline-block;
+
+    padding: 4px 9px;
+
+    border-radius: 6px;
+
+    border:
+            1px solid rgba(255, 255, 255, 0.14);
+
+    font-family:
+            'JetBrains Mono',
+            'Consolas',
+            monospace;
+
+    font-size: 0.62rem;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+}
+
+.modulo-ok {
+    color: #e4e8eb;
+
+    background:
+            rgba(194, 201, 207, 0.11);
+
+    border-color: #c2c9cf;
+}
+
+.modulo-aviso {
+    color: #c6aa70;
+
+    background:
+            rgba(166, 138, 78, 0.14);
+
+    border-color: #a68a4e;
+}
+
+.modulo-critico {
+    color: #bf837c;
+
+    background:
+            rgba(164, 99, 92, 0.15);
+
+    border-color: #a4635c;
+}
+
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
+.modulo-boton {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 9px 15px;
+
+    border:
+            1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius: 10px;
+
+    background:
+            rgba(255, 255, 255, 0.03);
+
+    color: #c6d0d9;
+
+    font-family:
+            'JetBrains Mono',
+            'Consolas',
+            monospace;
+
+    font-size: 0.7rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    transition:
+            background 0.2s ease,
+            border-color 0.2s ease;
+}
+
+.modulo-boton:hover {
+    background:
+            rgba(255, 255, 255, 0.07);
+
+    border-color:
+            rgba(255, 255, 255, 0.28);
+
+    color: #eef1f3;
+}
+
+
+/* =========================================================
+   BARRA DE PROGRESO
+   ========================================================= */
+
+.modulo-progreso {
+    height: 9px;
+
+    overflow: hidden;
+
+    border-radius: 5px;
+
+    background:
+            rgba(255, 255, 255, 0.08);
+}
+
+.modulo-progreso-barra {
+    height: 100%;
+
+    border-radius: 5px;
+
+    background: #9fadba;
+
+    transition: width 0.4s ease;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+    .modulo-cabecera {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .modulo-grid {
+        grid-template-columns: 1fr;
+    }
+}

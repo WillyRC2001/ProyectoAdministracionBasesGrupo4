@@ -4,7 +4,7 @@
 
 <head th:replace="~{fragments/head :: head('Auditoría')}"></head>
 
-<body>
+<body class="modulo-cuerpo">
 
 <div class="d-flex">
 
@@ -12,258 +12,595 @@
 
     <main class="main-content">
 
-        <div class="container-fluid">
+        <div class="modulo-escenario">
 
-            <div class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div>
-                    <h1>Auditoría</h1>
-                    <p class="text-muted mb-0">
-                        Usuarios, roles, privilegios y objetos con problemas en Microsoft SQL Server.
-                    </p>
+            <!-- =========================================================
+                 CABECERA
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <div class="modulo-panel modulo-cabecera">
+
+                    <div class="modulo-cabecera-contenido">
+
+                        <div>
+
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+
+                                <h1 class="modulo-titulo">
+                                    Auditoría
+                                </h1>
+
+                                <span class="modulo-etiqueta">
+                                    Módulo 5
+                                </span>
+
+                            </div>
+
+                            <p class="modulo-subtitulo">
+                                Usuarios · roles · privilegios · objetos con problemas
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <a th:href="@{/auditoria}"
+                       class="modulo-boton text-decoration-none">
+                        Actualizar
+                    </a>
+
                 </div>
-                <a th:href="@{/auditoria}" class="btn btn-primary">Actualizar</a>
+
+            </section>
+
+
+            <!-- =========================================================
+                 ERROR
+                 ========================================================= -->
+            <div class="alert alert-danger"
+                 role="alert"
+                 th:if="${error != null}"
+                 th:text="${error}">
             </div>
 
-            <div class="alert alert-danger" role="alert" th:if="${error != null}" th:text="${error}"></div>
 
             <th:block th:if="${panel != null}">
 
-                <!-- Hallazgos -->
-                <div class="mb-4">
+
+                <!-- =====================================================
+                     HALLAZGOS
+                     ===================================================== -->
+                <section class="modulo-seccion"
+                         th:if="${!#lists.isEmpty(panel.hallazgos())}">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Hallazgos de auditoría
+                    </h2>
+
+
                     <div th:each="h : ${panel.hallazgos()}"
-                         class="alert"
-                         th:classappend="${h.nivel() == 'CRITICO'} ? 'alert-danger' : (${h.nivel() == 'ADVERTENCIA'} ? 'alert-warning' : (${h.nivel() == 'INFO'} ? 'alert-info' : 'alert-success'))"
-                         role="alert">
-                        <strong th:text="${h.titulo()}"></strong>
-                        <span th:text="' — ' + ${h.detalle()}"></span>
-                    </div>
-                </div>
+                         class="modulo-panel p-3 mb-2"
 
-                <!-- Resumen -->
-                <div class="row g-4 mb-4">
-                    <div class="col-6 col-xl-3">
-                        <div class="card module-card h-100">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Logins del servidor</h6>
-                                <h2 class="mb-0" th:text="${#lists.size(panel.logins())}"></h2>
+                         th:style="${h.nivel() == 'CRITICO'}
+                            ? 'border-left: 3px solid #a4635c;'
+                            : (${h.nivel() == 'ADVERTENCIA'}
+                                ? 'border-left: 3px solid #a68a4e;'
+                                : (${h.nivel() == 'INFO'}
+                                    ? 'border-left: 3px solid #858d96;'
+                                    : 'border-left: 3px solid #c2c9cf;'))">
+
+                        <strong style="color:#e4e8eb;"
+                                th:text="${h.titulo()}">
+                        </strong>
+
+                        <div class="modulo-kpi-detalle mt-1"
+                             th:text="${h.detalle()}">
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =====================================================
+                     RESUMEN
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Resumen de auditoría
+                    </h2>
+
+
+                    <div class="modulo-grid">
+
+                        <!-- Logins -->
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Logins del servidor
+                            </span>
+
+                            <span class="modulo-kpi-valor"
+                                  th:text="${#lists.size(panel.logins())}">
+                                0
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Cuentas visibles a nivel de instancia
+                            </span>
+
+                        </article>
+
+
+                        <!-- Usuarios -->
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Usuarios de la base
+                            </span>
+
+                            <span class="modulo-kpi-valor"
+                                  th:text="${#lists.size(panel.usuarios())}">
+                                0
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Usuarios registrados en
+                                <span th:text="${panel.baseDatos()}"></span>
+                            </span>
+
+                        </article>
+
+
+                        <!-- Roles -->
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Asignaciones de roles
+                            </span>
+
+                            <span class="modulo-kpi-valor"
+                                  th:text="${#lists.size(panel.roles())}">
+                                0
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Roles de servidor y base de datos
+                            </span>
+
+                        </article>
+
+
+                        <!-- Problemas -->
+                        <article class="modulo-panel modulo-kpi">
+
+                            <span class="modulo-kpi-label">
+                                Objetos con problemas
+                            </span>
+
+                            <span class="modulo-kpi-valor"
+                                  th:text="${#lists.size(panel.objetosInvalidos())}">
+                                0
+                            </span>
+
+                            <span class="modulo-kpi-detalle">
+                                Referencias, índices o restricciones con incidencias
+                            </span>
+
+                        </article>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =====================================================
+                     LOGINS
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Logins del servidor
+                    </h2>
+
+
+                    <div class="modulo-panel">
+
+                        <div class="p-3">
+
+                            <p class="modulo-kpi-detalle mb-3">
+                                Cuentas que pueden conectarse a la instancia de SQL Server.
+                            </p>
+
+
+                            <div class="modulo-tabla-contenedor">
+
+                                <table class="modulo-tabla">
+
+                                    <thead>
+                                    <tr>
+                                        <th>Login</th>
+                                        <th>Tipo</th>
+                                        <th>Estado</th>
+                                        <th>Creado</th>
+                                        <th>Detalle</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <tr th:each="l : ${panel.logins()}">
+
+                                        <td th:text="${l.nombre()}"></td>
+
+                                        <td th:text="${l.tipo()}"></td>
+
+                                        <td>
+
+                                            <span class="modulo-badge"
+                                                  th:classappend="${l.estado() == 'HABILITADO'}
+                                                        ? ' modulo-ok'
+                                                        : ''"
+                                                  th:text="${l.estado()}">
+                                            </span>
+
+                                        </td>
+
+                                        <td th:text="${#temporals.format(
+                                                l.fechaCreacion(),
+                                                'dd/MM/yyyy HH:mm')}">
+                                        </td>
+
+                                        <td th:text="${l.detalle()}"></td>
+
+                                    </tr>
+
+
+                                    <tr th:if="${#lists.isEmpty(panel.logins())}">
+
+                                        <td colspan="5">
+                                            No hay logins visibles para el usuario de la aplicación.
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+
+                                </table>
+
                             </div>
+
                         </div>
+
                     </div>
-                    <div class="col-6 col-xl-3">
-                        <div class="card module-card h-100">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Usuarios de la base de datos</h6>
-                                <h2 class="mb-0" th:text="${#lists.size(panel.usuarios())}"></h2>
+
+                </section>
+
+
+                <!-- =====================================================
+                     USUARIOS
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Usuarios de la base de datos
+                    </h2>
+
+
+                    <div class="modulo-panel">
+
+                        <div class="p-3">
+
+                            <p class="modulo-kpi-detalle mb-3">
+                                Base de datos:
+                                <strong th:text="${panel.baseDatos()}"></strong>
+                            </p>
+
+
+                            <div class="modulo-tabla-contenedor">
+
+                                <table class="modulo-tabla">
+
+                                    <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Tipo</th>
+                                        <th>Creado</th>
+                                        <th>Detalle</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <tr th:each="u : ${panel.usuarios()}">
+
+                                        <td th:text="${u.nombre()}"></td>
+
+                                        <td th:text="${u.tipo()}"></td>
+
+                                        <td th:text="${#temporals.format(
+                                                u.fechaCreacion(),
+                                                'dd/MM/yyyy HH:mm')}">
+                                        </td>
+
+                                        <td th:text="${u.detalle()}"></td>
+
+                                    </tr>
+
+
+                                    <tr th:if="${#lists.isEmpty(panel.usuarios())}">
+
+                                        <td colspan="4">
+                                            No hay usuarios en la base de datos.
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+
+                                </table>
+
                             </div>
+
                         </div>
+
                     </div>
-                    <div class="col-6 col-xl-3">
-                        <div class="card module-card h-100">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Asignaciones de roles</h6>
-                                <h2 class="mb-0" th:text="${#lists.size(panel.roles())}"></h2>
+
+                </section>
+
+
+                <!-- =====================================================
+                     ROLES
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Roles asignados
+                    </h2>
+
+
+                    <div class="modulo-panel">
+
+                        <div class="p-3">
+
+                            <p class="modulo-kpi-detalle mb-3">
+                                Asociación de usuarios y logins con roles
+                                a nivel de servidor y base de datos.
+                            </p>
+
+
+                            <div class="modulo-tabla-contenedor">
+
+                                <table class="modulo-tabla">
+
+                                    <thead>
+                                    <tr>
+                                        <th>Ámbito</th>
+                                        <th>Usuario / login</th>
+                                        <th>Rol</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <tr th:each="r : ${panel.roles()}">
+
+                                        <td>
+
+                                            <span class="modulo-badge"
+                                                  th:classappend="${r.ambito() == 'SERVIDOR'}
+                                                        ? ' modulo-aviso'
+                                                        : ' modulo-ok'"
+                                                  th:text="${r.ambito()}">
+                                            </span>
+
+                                        </td>
+
+                                        <td th:text="${r.miembro()}"></td>
+
+                                        <td th:text="${r.rol()}"></td>
+
+                                    </tr>
+
+
+                                    <tr th:if="${#lists.isEmpty(panel.roles())}">
+
+                                        <td colspan="3">
+                                            No hay roles asignados.
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+
+                                </table>
+
                             </div>
+
                         </div>
+
                     </div>
-                    <div class="col-6 col-xl-3">
-                        <div class="card module-card h-100">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Objetos con problemas</h6>
-                                <h2 class="mb-0" th:text="${#lists.size(panel.objetosInvalidos())}"></h2>
+
+                </section>
+
+
+                <!-- =====================================================
+                     PRIVILEGIOS
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Privilegios principales
+                    </h2>
+
+
+                    <div class="modulo-panel">
+
+                        <div class="p-3">
+
+                            <p class="modulo-kpi-detalle mb-3">
+                                Permisos otorgados o denegados explícitamente
+                                a usuarios y roles.
+                                Se muestran hasta 500 registros.
+                            </p>
+
+                            <p class="modulo-kpi-detalle mb-3">
+                                Los permisos heredados mediante roles fijos,
+                                como <code>db_datareader</code>,
+                                se observan en la sección de roles asignados.
+                            </p>
+
+
+                            <div class="modulo-tabla-contenedor">
+
+                                <table class="modulo-tabla">
+
+                                    <thead>
+                                    <tr>
+                                        <th>Ámbito</th>
+                                        <th>Usuario / rol</th>
+                                        <th>Tipo</th>
+                                        <th>Estado</th>
+                                        <th>Permiso</th>
+                                        <th>Objeto</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <tr th:each="p : ${panel.permisos()}">
+
+                                        <td th:text="${p.ambito()}"></td>
+
+                                        <td th:text="${p.principal()}"></td>
+
+                                        <td th:text="${p.tipoPrincipal()}"></td>
+
+                                        <td>
+
+                                            <span class="modulo-badge"
+                                                  th:classappend="${p.estado() == 'DENY'}
+                                                        ? ' modulo-critico'
+                                                        : ' modulo-ok'"
+                                                  th:text="${p.estado()}">
+                                            </span>
+
+                                        </td>
+
+                                        <td th:text="${p.permiso()}"></td>
+
+                                        <td th:text="${p.objeto()}"></td>
+
+                                    </tr>
+
+
+                                    <tr th:if="${#lists.isEmpty(panel.permisos())}">
+
+                                        <td colspan="6">
+                                            No hay permisos explícitos para mostrar.
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+
+                                </table>
+
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Logins -->
-                <div class="card module-card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Logins del servidor</h5>
-                        <p class="text-muted">Cuentas que pueden conectarse a la instancia.</p>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Login</th>
-                                    <th>Tipo</th>
-                                    <th>Estado</th>
-                                    <th>Creado</th>
-                                    <th>Detalle</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="l : ${panel.logins()}">
-                                    <td th:text="${l.nombre()}"></td>
-                                    <td th:text="${l.tipo()}"></td>
-                                    <td>
-                                        <span class="badge"
-                                              th:classappend="${l.estado() == 'HABILITADO'} ? 'text-bg-success' : 'text-bg-secondary'"
-                                              th:text="${l.estado()}"></span>
-                                    </td>
-                                    <td th:text="${#temporals.format(l.fechaCreacion(), 'dd/MM/yyyy HH:mm')}"></td>
-                                    <td th:text="${l.detalle()}"></td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(panel.logins())}">
-                                    <td colspan="5" class="text-muted">
-                                        No hay logins visibles para el usuario de la aplicación.
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Usuarios de la base de datos -->
-                <div class="card module-card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            Usuarios de la base de datos
-                            <span class="fw-normal text-muted" th:text="'(' + ${panel.baseDatos()} + ')'"></span>
-                        </h5>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Tipo</th>
-                                    <th>Creado</th>
-                                    <th>Detalle</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="u : ${panel.usuarios()}">
-                                    <td th:text="${u.nombre()}"></td>
-                                    <td th:text="${u.tipo()}"></td>
-                                    <td th:text="${#temporals.format(u.fechaCreacion(), 'dd/MM/yyyy HH:mm')}"></td>
-                                    <td th:text="${u.detalle()}"></td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(panel.usuarios())}">
-                                    <td colspan="4" class="text-muted">No hay usuarios en la base de datos.</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
-                </div>
 
-                <!-- Roles -->
-                <div class="card module-card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Roles asignados</h5>
-                        <p class="text-muted">
-                            Qué usuario o login pertenece a qué rol, a nivel de servidor y de base de datos.
-                        </p>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Ámbito</th>
-                                    <th>Usuario / login</th>
-                                    <th>Rol</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="r : ${panel.roles()}">
-                                    <td>
-                                        <span class="badge"
-                                              th:classappend="${r.ambito() == 'SERVIDOR'} ? 'text-bg-dark' : 'text-bg-primary'"
-                                              th:text="${r.ambito()}"></span>
-                                    </td>
-                                    <td th:text="${r.miembro()}"></td>
-                                    <td th:text="${r.rol()}"></td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(panel.roles())}">
-                                    <td colspan="3" class="text-muted">No hay roles asignados.</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                </section>
 
-                <!-- Privilegios -->
-                <div class="card module-card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Privilegios principales</h5>
-                        <p class="text-muted">
-                            Permisos otorgados o denegados de forma explícita a usuarios y roles (máximo 500 filas).
-                            Los permisos que un usuario hereda de un rol fijo, como <code>db_datareader</code>,
-                            se ven en la tabla de roles asignados.
-                        </p>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Ámbito</th>
-                                    <th>Usuario / rol</th>
-                                    <th>Tipo</th>
-                                    <th>Estado</th>
-                                    <th>Permiso</th>
-                                    <th>Objeto</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="p : ${panel.permisos()}">
-                                    <td th:text="${p.ambito()}"></td>
-                                    <td th:text="${p.principal()}"></td>
-                                    <td th:text="${p.tipoPrincipal()}"></td>
-                                    <td>
-                                        <span class="badge"
-                                              th:classappend="${p.estado() == 'DENY'} ? 'text-bg-danger' : 'text-bg-success'"
-                                              th:text="${p.estado()}"></span>
-                                    </td>
-                                    <td th:text="${p.permiso()}"></td>
-                                    <td th:text="${p.objeto()}"></td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(panel.permisos())}">
-                                    <td colspan="6" class="text-muted">No hay permisos explícitos para mostrar.</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Objetos inválidos -->
-                <div class="card module-card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Objetos inválidos o con errores</h5>
-                        <p class="text-muted">
-                            SQL Server no marca objetos como «inválidos» como Oracle. El equivalente son las referencias
-                            a objetos que no existen, los índices y triggers deshabilitados y las restricciones no
-                            confiables. Se pueden corregir desde el módulo
-                            <a th:href="@{/mantenimiento}">Mantenimiento</a>.
-                        </p>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Esquema</th>
-                                    <th>Objeto</th>
-                                    <th>Tipo</th>
-                                    <th>Elemento afectado</th>
-                                    <th>Problema</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="o : ${panel.objetosInvalidos()}">
-                                    <td th:text="${o.esquema()}"></td>
-                                    <td th:text="${o.objeto()}"></td>
-                                    <td th:text="${o.tipo()}"></td>
-                                    <td th:text="${o.elemento()}"></td>
-                                    <td th:text="${o.problema()}"></td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(panel.objetosInvalidos())}">
-                                    <td colspan="5" class="text-success">
-                                        No se detectaron objetos con problemas.
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+                <!-- =====================================================
+                     OBJETOS CON PROBLEMAS
+                     ===================================================== -->
+                <section class="modulo-seccion">
+
+                    <h2 class="modulo-titulo-seccion">
+                        Objetos inválidos o con errores
+                    </h2>
+
+
+                    <div class="modulo-panel">
+
+                        <div class="p-3">
+
+                            <p class="modulo-kpi-detalle mb-3">
+                                SQL Server no utiliza el concepto de objeto
+                                «inválido» de la misma forma que Oracle.
+                                En este módulo se detectan referencias a objetos
+                                inexistentes, índices y triggers deshabilitados,
+                                además de restricciones no confiables.
+                            </p>
+
+                            <p class="modulo-kpi-detalle mb-3">
+                                Los problemas detectados pueden corregirse desde
+                                <a th:href="@{/mantenimiento}">
+                                    Mantenimiento
+                                </a>.
+                            </p>
+
+
+                            <div class="modulo-tabla-contenedor">
+
+                                <table class="modulo-tabla">
+
+                                    <thead>
+                                    <tr>
+                                        <th>Esquema</th>
+                                        <th>Objeto</th>
+                                        <th>Tipo</th>
+                                        <th>Elemento afectado</th>
+                                        <th>Problema</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <tr th:each="o : ${panel.objetosInvalidos()}">
+
+                                        <td th:text="${o.esquema()}"></td>
+
+                                        <td th:text="${o.objeto()}"></td>
+
+                                        <td th:text="${o.tipo()}"></td>
+
+                                        <td th:text="${o.elemento()}"></td>
+
+                                        <td th:text="${o.problema()}"></td>
+
+                                    </tr>
+
+
+                                    <tr th:if="${#lists.isEmpty(panel.objetosInvalidos())}">
+
+                                        <td colspan="5">
+
+                                            <span class="modulo-badge modulo-ok">
+                                                Sin problemas detectados
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
                         </div>
+
                     </div>
-                </div>
+
+                </section>
 
             </th:block>
 
@@ -272,6 +609,7 @@
     </main>
 
 </div>
+
 
 <div th:replace="~{fragments/scripts :: scripts}"></div>
 

@@ -4,7 +4,7 @@
 
 <head th:replace="~{fragments/head :: head('Dashboard')}"></head>
 
-<body>
+<body class="modulo-cuerpo">
 
 <div class="d-flex">
 
@@ -12,197 +12,431 @@
     <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
 
 
-    <!-- Contenido -->
     <main class="main-content">
 
-        <div class="container-fluid">
+        <div class="modulo-escenario">
 
-            <div class="mb-4">
+            <!-- =========================================================
+                 CABECERA
+                 ========================================================= -->
+            <section class="modulo-seccion">
 
-                <h1>Dashboard de Administración</h1>
+                <div class="modulo-panel modulo-cabecera">
 
-                <p class="text-muted">
-                    Monitoreo, administración y auditoría de Microsoft SQL Server
-                </p>
+                    <div class="modulo-cabecera-contenido">
 
-            </div>
+                        <div>
 
+                            <div class="d-flex align-items-center flex-wrap gap-2">
 
-            <div class="row g-4">
+                                <h1 class="modulo-titulo">
+                                    Dashboard de Administración
+                                </h1>
 
-                <!-- Módulo 1 -->
-                <div class="col-md-6 col-xl-4">
+                                <span class="modulo-etiqueta">
+                                    SQL Server
+                                </span>
 
-                    <div class="card module-card h-100">
+                            </div>
 
-                        <div class="card-body">
-
-                            <h5 class="card-title">
-                                Estado de la instancia
-                            </h5>
-
-                            <p class="card-text">
-                                Información general del servidor,
-                                instancia, versión, memoria y bases
-                                de datos administradas.
+                            <p class="modulo-subtitulo">
+                                Monitoreo · administración · auditoría · mantenimiento
                             </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 INTRODUCCIÓN
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <div class="modulo-panel p-4">
+
+                    <span class="modulo-kpi-label">
+                        Sistema de administración
+                    </span>
+
+                    <h2 style="
+                        color:#eef1f3;
+                        margin:8px 0 10px;
+                        font-size:1.25rem;
+                        font-weight:700;">
+                        Microsoft SQL Server
+                    </h2>
+
+                    <p class="modulo-kpi-detalle mb-0"
+                       style="max-width:850px; line-height:1.7;">
+                        Herramienta para consultar el estado de la instancia,
+                        analizar el rendimiento, administrar el almacenamiento,
+                        revisar respaldos, auditar usuarios y permisos,
+                        y ejecutar tareas de mantenimiento preventivo.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 MÓDULOS
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    Módulos del sistema
+                </h2>
+
+
+                <div class="modulo-grid">
+
+
+                    <!-- =================================================
+                         MÓDULO 1
+                         ================================================= -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <div class="d-flex justify-content-between
+                                    align-items-start gap-3">
+
+                            <div>
+
+                                <span class="modulo-kpi-label">
+                                    Módulo 1
+                                </span>
+
+                                <h3 style="
+                                    color:#e4e8eb;
+                                    font-size:1rem;
+                                    margin:9px 0 0;
+                                    font-weight:700;">
+                                    Estado de la instancia
+                                </h3>
+
+                            </div>
+
+                            <span class="modulo-badge modulo-ok">
+                                Estado
+                            </span>
+
+                        </div>
+
+
+                        <p class="modulo-kpi-detalle mt-3"
+                           style="line-height:1.6;">
+                            Información general del servidor,
+                            instancia, versión, memoria y bases
+                            de datos administradas.
+                        </p>
+
+
+                        <div class="mt-4">
 
                             <a th:href="@{/estado}"
-                               class="btn btn-primary">
+                               class="modulo-boton text-decoration-none">
                                 Ver módulo
                             </a>
 
                         </div>
 
-                    </div>
-
-                </div>
+                    </article>
 
 
-                <!-- Módulo 2 -->
-                <div class="col-md-6 col-xl-4">
+                    <!-- =================================================
+                         MÓDULO 2
+                         ================================================= -->
+                    <article class="modulo-panel modulo-kpi">
 
-                    <div class="card module-card h-100">
+                        <div class="d-flex justify-content-between
+                                    align-items-start gap-3">
 
-                        <div class="card-body">
+                            <div>
 
-                            <h5 class="card-title">
-                                Monitoreo de rendimiento
-                            </h5>
+                                <span class="modulo-kpi-label">
+                                    Módulo 2
+                                </span>
 
-                            <p class="card-text">
-                                Consultas de alto consumo,
-                                sesiones, bloqueos y utilización
-                                de recursos.
-                            </p>
+                                <h3 style="
+                                    color:#e4e8eb;
+                                    font-size:1rem;
+                                    margin:9px 0 0;
+                                    font-weight:700;">
+                                    Monitoreo de rendimiento
+                                </h3>
+
+                            </div>
+
+                            <span class="modulo-badge modulo-ok">
+                                Rendimiento
+                            </span>
+
+                        </div>
+
+
+                        <p class="modulo-kpi-detalle mt-3"
+                           style="line-height:1.6;">
+                            Consultas de alto consumo,
+                            sesiones, bloqueos y utilización
+                            de recursos de la instancia.
+                        </p>
+
+
+                        <div class="mt-4">
 
                             <a th:href="@{/rendimiento}"
-                               class="btn btn-primary">
+                               class="modulo-boton text-decoration-none">
                                 Ver módulo
                             </a>
 
                         </div>
 
-                    </div>
-
-                </div>
+                    </article>
 
 
-                <!-- Módulo 3 -->
-                <div class="col-md-6 col-xl-4">
+                    <!-- =================================================
+                         MÓDULO 3
+                         ================================================= -->
+                    <article class="modulo-panel modulo-kpi">
 
-                    <div class="card module-card h-100">
+                        <div class="d-flex justify-content-between
+                                    align-items-start gap-3">
 
-                        <div class="card-body">
+                            <div>
 
-                            <h5 class="card-title">
-                                Gestión del almacenamiento
-                            </h5>
+                                <span class="modulo-kpi-label">
+                                    Módulo 3
+                                </span>
 
-                            <p class="card-text">
-                                Filegroups, archivos de datos,
-                                espacio utilizado y crecimiento
-                                de la base de datos.
-                            </p>
+                                <h3 style="
+                                    color:#e4e8eb;
+                                    font-size:1rem;
+                                    margin:9px 0 0;
+                                    font-weight:700;">
+                                    Gestión del almacenamiento
+                                </h3>
+
+                            </div>
+
+                            <span class="modulo-badge modulo-ok">
+                                Espacio
+                            </span>
+
+                        </div>
+
+
+                        <p class="modulo-kpi-detalle mt-3"
+                           style="line-height:1.6;">
+                            Filegroups, archivos de datos,
+                            espacio utilizado y crecimiento
+                            de la base de datos.
+                        </p>
+
+
+                        <div class="mt-4">
 
                             <a th:href="@{/almacenamiento}"
-                               class="btn btn-primary">
+                               class="modulo-boton text-decoration-none">
                                 Ver módulo
                             </a>
 
                         </div>
 
-                    </div>
-
-                </div>
+                    </article>
 
 
-                <!-- Módulo 4 -->
-                <div class="col-md-6 col-xl-4">
+                    <!-- =================================================
+                         MÓDULO 4
+                         ================================================= -->
+                    <article class="modulo-panel modulo-kpi">
 
-                    <div class="card module-card h-100">
+                        <div class="d-flex justify-content-between
+                                    align-items-start gap-3">
 
-                        <div class="card-body">
+                            <div>
 
-                            <h5 class="card-title">
-                                Respaldo y recuperación
-                            </h5>
+                                <span class="modulo-kpi-label">
+                                    Módulo 4
+                                </span>
 
-                            <p class="card-text">
-                                Últimos respaldos, tipos,
-                                estado e historial de copias
-                                de seguridad.
-                            </p>
+                                <h3 style="
+                                    color:#e4e8eb;
+                                    font-size:1rem;
+                                    margin:9px 0 0;
+                                    font-weight:700;">
+                                    Respaldo y recuperación
+                                </h3>
+
+                            </div>
+
+                            <span class="modulo-badge modulo-ok">
+                                Backup
+                            </span>
+
+                        </div>
+
+
+                        <p class="modulo-kpi-detalle mt-3"
+                           style="line-height:1.6;">
+                            Últimos respaldos, tipos,
+                            estado e historial de copias
+                            de seguridad registradas.
+                        </p>
+
+
+                        <div class="mt-4">
 
                             <a th:href="@{/respaldo}"
-                               class="btn btn-primary">
+                               class="modulo-boton text-decoration-none">
                                 Ver módulo
                             </a>
 
                         </div>
 
-                    </div>
-
-                </div>
+                    </article>
 
 
-                <!-- Módulo 5 -->
-                <div class="col-md-6 col-xl-4">
+                    <!-- =================================================
+                         MÓDULO 5
+                         ================================================= -->
+                    <article class="modulo-panel modulo-kpi">
 
-                    <div class="card module-card h-100">
+                        <div class="d-flex justify-content-between
+                                    align-items-start gap-3">
 
-                        <div class="card-body">
+                            <div>
 
-                            <h5 class="card-title">
-                                Auditoría
-                            </h5>
+                                <span class="modulo-kpi-label">
+                                    Módulo 5
+                                </span>
 
-                            <p class="card-text">
-                                Usuarios, roles, privilegios
-                                y objetos con errores.
-                            </p>
+                                <h3 style="
+                                    color:#e4e8eb;
+                                    font-size:1rem;
+                                    margin:9px 0 0;
+                                    font-weight:700;">
+                                    Auditoría
+                                </h3>
 
-                            <a th:href="@{/auditoria}" class="btn btn-primary">Ver módulo</a>
+                            </div>
 
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Módulo 6 -->
-                <div class="col-md-6 col-xl-4">
-
-                    <div class="card module-card h-100">
-
-                        <div class="card-body">
-
-                            <h5 class="card-title">
-                                Mantenimiento preventivo
-                            </h5>
-
-                            <p class="card-text">
-                                Estadísticas, detección y
-                                corrección de objetos que
-                                requieren intervención.
-                            </p>
-
-                            <a th:href="@{/mantenimiento}" class="btn btn-primary">Ver módulo</a>
+                            <span class="modulo-badge modulo-ok">
+                                Seguridad
+                            </span>
 
                         </div>
 
+
+                        <p class="modulo-kpi-detalle mt-3"
+                           style="line-height:1.6;">
+                            Usuarios, roles, privilegios
+                            y detección de objetos
+                            con errores o incidencias.
+                        </p>
+
+
+                        <div class="mt-4">
+
+                            <a th:href="@{/auditoria}"
+                               class="modulo-boton text-decoration-none">
+                                Ver módulo
+                            </a>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- =================================================
+                         MÓDULO 6
+                         ================================================= -->
+                    <article class="modulo-panel modulo-kpi">
+
+                        <div class="d-flex justify-content-between
+                                    align-items-start gap-3">
+
+                            <div>
+
+                                <span class="modulo-kpi-label">
+                                    Módulo 6
+                                </span>
+
+                                <h3 style="
+                                    color:#e4e8eb;
+                                    font-size:1rem;
+                                    margin:9px 0 0;
+                                    font-weight:700;">
+                                    Mantenimiento preventivo
+                                </h3>
+
+                            </div>
+
+                            <span class="modulo-badge modulo-ok">
+                                Mantenimiento
+                            </span>
+
+                        </div>
+
+
+                        <p class="modulo-kpi-detalle mt-3"
+                           style="line-height:1.6;">
+                            Estadísticas, detección y
+                            corrección de objetos que
+                            requieren intervención.
+                        </p>
+
+
+                        <div class="mt-4">
+
+                            <a th:href="@{/mantenimiento}"
+                               class="modulo-boton text-decoration-none">
+                                Ver módulo
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 PIE INFORMATIVO
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <div class="modulo-panel p-3">
+
+                    <div class="d-flex justify-content-between
+                                align-items-center flex-wrap gap-2">
+
+                        <span class="modulo-kpi-detalle">
+                            Sistema de monitoreo y administración de SGBD
+                        </span>
+
+                        <span class="modulo-badge">
+                            Microsoft SQL Server
+                        </span>
+
                     </div>
 
                 </div>
 
-            </div>
+            </section>
 
         </div>
 
     </main>
 
 </div>
+
 
 <div th:replace="~{fragments/scripts :: scripts}"></div>
 

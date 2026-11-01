@@ -4,7 +4,7 @@
 
 <head th:replace="~{fragments/head :: head('Almacenamiento')}"></head>
 
-<body>
+<body class="modulo-cuerpo">
 
 <div class="d-flex">
 
@@ -12,217 +12,418 @@
 
     <main class="main-content"
           id="contenido"
-          th:attr="data-api=@{/almacenamiento/api/panel},data-api-crecimiento=@{/almacenamiento/api/crecimiento}">
+          th:attr="data-api=@{/almacenamiento/api/panel},
+                   data-api-crecimiento=@{/almacenamiento/api/crecimiento}">
 
-        <div class="container-fluid">
+        <div class="modulo-escenario">
 
-            <div class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <!-- =========================================================
+                 CABECERA
+                 ========================================================= -->
+            <section class="modulo-seccion">
 
-                <div>
-                    <h1>Gestión del almacenamiento</h1>
-                    <p class="text-muted mb-0">
-                        Tamaño de la base de datos, filegroups, archivos, objetos de mayor tamaño y crecimiento en Microsoft SQL Server.
-                    </p>
+                <div class="modulo-panel modulo-cabecera">
+
+                    <div class="modulo-cabecera-contenido">
+
+                        <div>
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+
+                                <h1 class="modulo-titulo">
+                                    Gestión del almacenamiento
+                                </h1>
+
+                                <span class="modulo-etiqueta">
+                                    Módulo 3
+                                </span>
+
+                            </div>
+
+                            <p class="modulo-subtitulo">
+                                Filegroups · archivos · objetos · crecimiento
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <button id="btnActualizar"
+                            type="button"
+                            class="modulo-boton">
+                        Actualizar
+                    </button>
+
                 </div>
 
-                <button id="btnActualizar" type="button" class="btn btn-primary">
-                    Actualizar
-                </button>
+            </section>
 
-            </div>
+
+            <!-- =========================================================
+                 ERRORES Y HALLAZGOS
+                 ========================================================= -->
 
             <div id="alertaError"
                  class="alert alert-danger d-none"
-                 role="alert"></div>
-
-            <div id="hallazgos" class="mb-4"></div>
-
-            <div class="row g-4 mb-4">
-
-                <div class="col-md-6 col-xl-4">
-                    <div class="card module-card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Archivos de datos</h5>
-                            <h2 id="datosMb" class="mb-2">…</h2>
-                            <p class="card-text text-muted">
-                                Espacio asignado a los archivos de datos de la base de datos.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                    <div class="card module-card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Archivos de log</h5>
-                            <h2 id="logMb" class="mb-2">…</h2>
-                            <p class="card-text text-muted">
-                                Espacio asignado al registro de transacciones.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                    <div class="card module-card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Tamaño total</h5>
-                            <h2 id="totalMb" class="mb-2">…</h2>
-                            <p class="card-text text-muted">
-                                Suma de datos y log de
-                                <span id="baseDatos" class="fw-semibold">…</span>.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
+                 role="alert">
             </div>
 
-            <div class="card module-card mb-4">
-                <div class="card-body">
-
-                    <h5 class="card-title">Filegroups</h5>
-
-                    <p class="text-muted">
-                        Un filegroup agrupa archivos de datos. El espacio disponible es lo que queda libre
-                        dentro de lo ya asignado; el archivo de log no pertenece a ningún filegroup.
-                    </p>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                            <tr>
-                                <th>Filegroup</th>
-                                <th>Archivos</th>
-                                <th>Tamaño</th>
-                                <th>Usado</th>
-                                <th>Disponible</th>
-                                <th style="min-width: 220px;">Uso</th>
-                            </tr>
-                            </thead>
-                            <tbody id="tablaFilegroups">
-                            <tr>
-                                <td colspan="6" class="text-muted">Cargando…</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
+            <div id="hallazgos"
+                 class="modulo-seccion">
             </div>
 
-            <div class="card module-card mb-4">
-                <div class="card-body">
 
-                    <h5 class="card-title">Archivos de la base de datos</h5>
+            <!-- =========================================================
+                 RESUMEN
+                 ========================================================= -->
+            <section class="modulo-seccion">
 
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                            <tr>
-                                <th>Archivo</th>
-                                <th>Tipo</th>
-                                <th>Filegroup</th>
-                                <th>Tamaño</th>
-                                <th style="min-width: 220px;">Espacio usado</th>
-                                <th>Máximo</th>
-                                <th>Crecimiento</th>
-                            </tr>
-                            </thead>
-                            <tbody id="tablaArchivos">
-                            <tr>
-                                <td colspan="7" class="text-muted">Cargando…</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <h2 class="modulo-titulo-seccion">
+                    Resumen de almacenamiento
+                </h2>
 
-                    <p class="text-muted small mt-3 mb-0">
-                        Espacio usado:
-                        <span class="badge text-bg-success">menos de 70 %</span>
-                        <span class="badge text-bg-warning">70 % o más</span>
-                        <span class="badge text-bg-danger">85 % o más</span>
-                    </p>
+                <div class="modulo-grid">
+
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Archivos de datos
+                        </span>
+
+                        <span id="datosMb"
+                              class="modulo-kpi-valor">
+                            …
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Espacio asignado a los archivos de datos
+                        </span>
+
+                    </article>
+
+
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Archivos de log
+                        </span>
+
+                        <span id="logMb"
+                              class="modulo-kpi-valor">
+                            …
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Espacio asignado al registro de transacciones
+                        </span>
+
+                    </article>
+
+
+                    <article class="modulo-panel modulo-kpi">
+
+                        <span class="modulo-kpi-label">
+                            Tamaño total
+                        </span>
+
+                        <span id="totalMb"
+                              class="modulo-kpi-valor">
+                            …
+                        </span>
+
+                        <span class="modulo-kpi-detalle">
+                            Base de datos:
+                            <span id="baseDatos">…</span>
+                        </span>
+
+                    </article>
 
                 </div>
-            </div>
 
-            <div class="card module-card mb-4">
-                <div class="card-body">
+            </section>
 
-                    <h5 class="card-title">Objetos de mayor tamaño</h5>
 
-                    <p class="text-muted">
-                        Las 10 tablas que más espacio reservan, con el detalle de datos e índices.
-                        La participación se calcula sobre el espacio total asignado a datos.
-                    </p>
+            <!-- =========================================================
+                 FILEGROUPS
+                 ========================================================= -->
+            <section class="modulo-seccion">
 
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                            <tr>
-                                <th>Tabla</th>
-                                <th class="text-end">Filas</th>
-                                <th>Datos</th>
-                                <th>Índices</th>
-                                <th>Reservado</th>
-                                <th style="min-width: 200px;">Participación</th>
-                            </tr>
-                            </thead>
-                            <tbody id="tablaObjetos">
-                            <tr>
-                                <td colspan="6" class="text-muted">Cargando…</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <h2 class="modulo-titulo-seccion">
+                    Filegroups
+                </h2>
 
-                </div>
-            </div>
+                <div class="modulo-panel">
 
-            <div class="card module-card">
-                <div class="card-body">
+                    <div class="p-3">
 
-                    <h5 class="card-title">Crecimiento de la base de datos</h5>
+                        <p class="modulo-kpi-detalle mb-3">
+                            Un filegroup agrupa archivos de datos.
+                            El espacio disponible representa lo que permanece
+                            libre dentro del espacio ya asignado.
+                        </p>
 
-                    <p class="text-muted">
-                        Historial real registrado automáticamente cada hora en la tabla
-                        <code>dbo.AlmacenamientoSnapshot</code>.
-                    </p>
+                        <div class="modulo-tabla-contenedor">
 
-                    <div id="alertaCrecimiento"
-                         class="alert alert-warning d-none"
-                         role="alert"></div>
+                            <table class="modulo-tabla">
 
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Capturas registradas</small>
-                                <strong id="crecCapturas" class="fs-4">…</strong>
-                            </div>
+                                <thead>
+                                <tr>
+                                    <th>Filegroup</th>
+                                    <th>Archivos</th>
+                                    <th>Tamaño</th>
+                                    <th>Usado</th>
+                                    <th>Disponible</th>
+                                    <th style="min-width: 220px;">
+                                        Uso
+                                    </th>
+                                </tr>
+                                </thead>
+
+                                <tbody id="tablaFilegroups">
+
+                                <tr>
+                                    <td colspan="6">
+                                        Cargando…
+                                    </td>
+                                </tr>
+
+                                </tbody>
+
+                            </table>
+
                         </div>
-                        <div class="col-md-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Crecimiento de datos usados</small>
-                                <strong id="crecTotal" class="fs-4">…</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Ritmo estimado</small>
-                                <strong id="crecRitmo" class="fs-4">…</strong>
-                            </div>
-                        </div>
-                    </div>
 
-                    <p id="crecInterpretacion" class="mb-3"></p>
-
-                    <div style="position: relative; height: 320px;">
-                        <canvas id="graficoCrecimiento"></canvas>
                     </div>
 
                 </div>
-            </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 ARCHIVOS
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    Archivos de la base de datos
+                </h2>
+
+                <div class="modulo-panel">
+
+                    <div class="p-3">
+
+                        <div class="modulo-tabla-contenedor">
+
+                            <table class="modulo-tabla">
+
+                                <thead>
+                                <tr>
+                                    <th>Archivo</th>
+                                    <th>Tipo</th>
+                                    <th>Filegroup</th>
+                                    <th>Tamaño</th>
+                                    <th style="min-width: 220px;">
+                                        Espacio usado
+                                    </th>
+                                    <th>Máximo</th>
+                                    <th>Crecimiento</th>
+                                </tr>
+                                </thead>
+
+                                <tbody id="tablaArchivos">
+
+                                <tr>
+                                    <td colspan="7">
+                                        Cargando…
+                                    </td>
+                                </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <div class="mt-3">
+
+                            <span class="modulo-kpi-label me-2">
+                                Niveles de uso
+                            </span>
+
+                            <span class="modulo-badge modulo-ok">
+                                &lt; 70 %
+                            </span>
+
+                            <span class="modulo-badge modulo-aviso ms-1">
+                                ≥ 70 %
+                            </span>
+
+                            <span class="modulo-badge modulo-critico ms-1">
+                                ≥ 85 %
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 OBJETOS MAYORES
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    Objetos de mayor tamaño
+                </h2>
+
+                <div class="modulo-panel">
+
+                    <div class="p-3">
+
+                        <p class="modulo-kpi-detalle mb-3">
+                            Las 10 tablas que reservan mayor cantidad de espacio,
+                            incluyendo datos e índices.
+                        </p>
+
+                        <div class="modulo-tabla-contenedor">
+
+                            <table class="modulo-tabla">
+
+                                <thead>
+                                <tr>
+                                    <th>Tabla</th>
+                                    <th>Filas</th>
+                                    <th>Datos</th>
+                                    <th>Índices</th>
+                                    <th>Reservado</th>
+                                    <th style="min-width: 200px;">
+                                        Participación
+                                    </th>
+                                </tr>
+                                </thead>
+
+                                <tbody id="tablaObjetos">
+
+                                <tr>
+                                    <td colspan="6">
+                                        Cargando…
+                                    </td>
+                                </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================================
+                 CRECIMIENTO
+                 ========================================================= -->
+            <section class="modulo-seccion">
+
+                <h2 class="modulo-titulo-seccion">
+                    Crecimiento de la base de datos
+                </h2>
+
+                <div class="modulo-panel">
+
+                    <div class="p-3">
+
+                        <p class="modulo-kpi-detalle mb-4">
+                            Historial registrado automáticamente mediante
+                            <code>dbo.AlmacenamientoSnapshot</code>.
+                        </p>
+
+
+                        <div id="alertaCrecimiento"
+                             class="alert alert-warning d-none"
+                             role="alert">
+                        </div>
+
+
+                        <div class="modulo-grid mb-4">
+
+                            <article class="modulo-panel modulo-kpi">
+
+                                <span class="modulo-kpi-label">
+                                    Capturas registradas
+                                </span>
+
+                                <span id="crecCapturas"
+                                      class="modulo-kpi-valor">
+                                    …
+                                </span>
+
+                                <span class="modulo-kpi-detalle">
+                                    Snapshots disponibles
+                                </span>
+
+                            </article>
+
+
+                            <article class="modulo-panel modulo-kpi">
+
+                                <span class="modulo-kpi-label">
+                                    Crecimiento de datos usados
+                                </span>
+
+                                <span id="crecTotal"
+                                      class="modulo-kpi-valor">
+                                    …
+                                </span>
+
+                                <span class="modulo-kpi-detalle">
+                                    Variación registrada
+                                </span>
+
+                            </article>
+
+
+                            <article class="modulo-panel modulo-kpi">
+
+                                <span class="modulo-kpi-label">
+                                    Ritmo estimado
+                                </span>
+
+                                <span id="crecRitmo"
+                                      class="modulo-kpi-valor">
+                                    …
+                                </span>
+
+                                <span class="modulo-kpi-detalle">
+                                    Crecimiento estimado por día
+                                </span>
+
+                            </article>
+
+                        </div>
+
+
+                        <p id="crecInterpretacion"
+                           class="modulo-kpi-detalle mb-4">
+                        </p>
+
+
+                        <div style="position: relative; height: 320px;">
+                            <canvas id="graficoCrecimiento"></canvas>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
 
         </div>
 
@@ -230,360 +431,1109 @@
 
 </div>
 
+
 <div th:replace="~{fragments/scripts :: scripts}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js"></script>
 
+
 <script>
     (function () {
+
         const contenido = document.getElementById('contenido');
         const urlPanel = contenido.dataset.api;
         const urlCrecimiento = contenido.dataset.apiCrecimiento;
+
         let grafico = null;
 
+
         function formatMb(valor) {
+
             const mb = Number(valor);
-            if (mb >= 1048576) return (mb / 1048576).toFixed(2) + ' TB';
-            if (mb >= 1024) return (mb / 1024).toFixed(2) + ' GB';
+
+            if (mb >= 1048576)
+                return (mb / 1048576).toFixed(2) + ' TB';
+
+            if (mb >= 1024)
+                return (mb / 1024).toFixed(2) + ' GB';
+
             return mb.toFixed(2) + ' MB';
         }
 
+
         function colorUso(porcentaje) {
-            if (porcentaje >= 85) return 'bg-danger';
-            if (porcentaje >= 70) return 'bg-warning';
+
+            if (porcentaje >= 85)
+                return 'bg-danger';
+
+            if (porcentaje >= 70)
+                return 'bg-warning';
+
             return 'bg-success';
         }
 
+
         function celda(contenidoCelda) {
+
             const td = document.createElement('td');
+
             if (contenidoCelda instanceof Node) {
                 td.appendChild(contenidoCelda);
-            } else {
+            }
+            else {
                 td.textContent = contenidoCelda;
             }
+
             return td;
         }
 
+
         function filaVacia(columnas, texto) {
+
             const fila = document.createElement('tr');
+
             const td = document.createElement('td');
+
             td.colSpan = columnas;
-            td.className = 'text-muted';
             td.textContent = texto;
+
             fila.appendChild(td);
+
             return fila;
         }
 
+
         function barra(porcentaje, clase, etiquetaTexto) {
+
             const contenedor = document.createElement('div');
+
             const etiqueta = document.createElement('small');
             etiqueta.textContent = etiquetaTexto;
+
             const progreso = document.createElement('div');
+
             progreso.className = 'progress mt-1';
             progreso.style.height = '8px';
+
             const relleno = document.createElement('div');
+
             relleno.className = 'progress-bar ' + clase;
             relleno.setAttribute('role', 'progressbar');
-            relleno.style.width = Math.min(porcentaje, 100) + '%';
+
+            relleno.style.width =
+                Math.min(porcentaje, 100) + '%';
+
             progreso.appendChild(relleno);
+
             contenedor.appendChild(etiqueta);
             contenedor.appendChild(progreso);
+
             return contenedor;
         }
 
+
         function barraUso(usado, total) {
-            const porcentaje = total > 0 ? Math.round((usado / total) * 100) : 0;
-            return barra(porcentaje, colorUso(porcentaje),
-                formatMb(usado) + ' de ' + formatMb(total) + ' (' + porcentaje + '%)');
+
+            const porcentaje =
+                total > 0
+                    ? Math.round((usado / total) * 100)
+                    : 0;
+
+            return barra(
+                porcentaje,
+                colorUso(porcentaje),
+                formatMb(usado)
+                + ' de '
+                + formatMb(total)
+                + ' ('
+                + porcentaje
+                + '%)'
+            );
         }
+
 
         function barraParticipacion(valor, total) {
-            const porcentaje = total > 0 ? (valor / total) * 100 : 0;
-            return barra(porcentaje, 'bg-primary', porcentaje.toFixed(1) + ' %');
+
+            const porcentaje =
+                total > 0
+                    ? (valor / total) * 100
+                    : 0;
+
+            return barra(
+                porcentaje,
+                'bg-primary',
+                porcentaje.toFixed(1) + ' %'
+            );
         }
 
+
         function celdaArchivo(archivo) {
+
             const div = document.createElement('div');
-            const nombre = document.createElement('strong');
-            nombre.textContent = archivo.nombreLogico;
-            const ruta = document.createElement('small');
-            ruta.className = 'text-muted d-block text-break';
-            ruta.textContent = archivo.rutaFisica;
+
+            const nombre =
+                document.createElement('strong');
+
+            nombre.textContent =
+                archivo.nombreLogico;
+
+            const ruta =
+                document.createElement('small');
+
+            ruta.className =
+                'd-block text-break';
+
+            ruta.style.color = '#6b737b';
+
+            ruta.textContent =
+                archivo.rutaFisica;
+
             div.appendChild(nombre);
             div.appendChild(ruta);
+
             return div;
         }
 
+
         function insigniaTipo(tipo) {
-            const span = document.createElement('span');
-            const esDatos = tipo === 'ROWS';
-            span.className = 'badge ' + (esDatos ? 'text-bg-primary' : 'text-bg-secondary');
-            span.textContent = esDatos ? 'Datos' : 'Log';
+
+            const span =
+                document.createElement('span');
+
+            const esDatos =
+                tipo === 'ROWS';
+
+            span.className =
+                'modulo-badge '
+                + (esDatos
+                    ? 'modulo-ok'
+                    : '');
+
+            span.textContent =
+                esDatos
+                    ? 'Datos'
+                    : 'Log';
+
             return span;
         }
 
+
         function celdaFilegroup(filegroup) {
-            const div = document.createElement('div');
-            const nombre = document.createElement('strong');
-            nombre.textContent = filegroup.nombre;
+
+            const div =
+                document.createElement('div');
+
+            const nombre =
+                document.createElement('strong');
+
+            nombre.textContent =
+                filegroup.nombre;
+
             div.appendChild(nombre);
+
+
             if (filegroup.predeterminado) {
-                const insignia = document.createElement('span');
-                insignia.className = 'badge text-bg-info ms-2';
-                insignia.textContent = 'Predeterminado';
+
+                const insignia =
+                    document.createElement('span');
+
+                insignia.className =
+                    'modulo-badge modulo-ok ms-2';
+
+                insignia.textContent =
+                    'Predeterminado';
+
                 div.appendChild(insignia);
             }
+
             return div;
         }
 
+
         function celdaObjeto(objeto) {
-            const strong = document.createElement('strong');
-            strong.textContent = objeto.esquema + '.' + objeto.nombre;
+
+            const strong =
+                document.createElement('strong');
+
+            strong.textContent =
+                objeto.esquema
+                + '.'
+                + objeto.nombre;
+
             return strong;
         }
 
+
         function pintarHallazgos(hallazgos) {
-            const contenedor = document.getElementById('hallazgos');
+
+            const contenedor =
+                document.getElementById('hallazgos');
+
             contenedor.replaceChildren();
 
-            const clases = { CRITICO: 'alert-danger', ADVERTENCIA: 'alert-warning', OK: 'alert-success' };
+
+            const clases = {
+
+                CRITICO: 'alert-danger',
+
+                ADVERTENCIA:
+                    'alert-warning',
+
+                OK:
+                    'alert-success'
+            };
+
 
             hallazgos.forEach(function (hallazgo) {
-                const alerta = document.createElement('div');
-                alerta.className = 'alert ' + (clases[hallazgo.nivel] || 'alert-secondary') + ' mb-2';
-                alerta.setAttribute('role', 'alert');
-                const titulo = document.createElement('strong');
-                titulo.textContent = hallazgo.titulo;
-                const detalle = document.createElement('div');
-                detalle.textContent = hallazgo.detalle;
+
+                const alerta =
+                    document.createElement('div');
+
+                alerta.className =
+                    'alert '
+                    + (clases[hallazgo.nivel]
+                        || 'alert-secondary')
+                    + ' mb-2';
+
+                alerta.setAttribute(
+                    'role',
+                    'alert'
+                );
+
+
+                const titulo =
+                    document.createElement('strong');
+
+                titulo.textContent =
+                    hallazgo.titulo;
+
+
+                const detalle =
+                    document.createElement('div');
+
+                detalle.textContent =
+                    hallazgo.detalle;
+
+
                 alerta.appendChild(titulo);
                 alerta.appendChild(detalle);
+
                 contenedor.appendChild(alerta);
             });
         }
 
+
         function pintarFilegroups(filegroups) {
-            const cuerpo = document.getElementById('tablaFilegroups');
+
+            const cuerpo =
+                document.getElementById(
+                    'tablaFilegroups'
+                );
+
             cuerpo.replaceChildren();
+
 
             if (filegroups.length === 0) {
-                cuerpo.appendChild(filaVacia(6, 'No se encontraron filegroups en la base de datos.'));
+
+                cuerpo.appendChild(
+                    filaVacia(
+                        6,
+                        'No se encontraron filegroups en la base de datos.'
+                    )
+                );
+
                 return;
             }
+
 
             filegroups.forEach(function (filegroup) {
-                const fila = document.createElement('tr');
-                fila.appendChild(celda(celdaFilegroup(filegroup)));
-                fila.appendChild(celda(String(filegroup.archivos)));
-                fila.appendChild(celda(formatMb(filegroup.tamanoMb)));
-                fila.appendChild(celda(formatMb(filegroup.usadoMb)));
-                fila.appendChild(celda(formatMb(filegroup.disponibleMb)));
-                fila.appendChild(celda(barraUso(filegroup.usadoMb, filegroup.tamanoMb)));
+
+                const fila =
+                    document.createElement('tr');
+
+
+                fila.appendChild(
+                    celda(
+                        celdaFilegroup(
+                            filegroup
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        String(
+                            filegroup.archivos
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        formatMb(
+                            filegroup.tamanoMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        formatMb(
+                            filegroup.usadoMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        formatMb(
+                            filegroup.disponibleMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        barraUso(
+                            filegroup.usadoMb,
+                            filegroup.tamanoMb
+                        )
+                    )
+                );
+
                 cuerpo.appendChild(fila);
             });
         }
+
 
         function pintarArchivos(archivos) {
-            const cuerpo = document.getElementById('tablaArchivos');
+
+            const cuerpo =
+                document.getElementById(
+                    'tablaArchivos'
+                );
+
             cuerpo.replaceChildren();
+
 
             if (archivos.length === 0) {
-                cuerpo.appendChild(filaVacia(7, 'No se encontraron archivos para la base de datos.'));
+
+                cuerpo.appendChild(
+                    filaVacia(
+                        7,
+                        'No se encontraron archivos para la base de datos.'
+                    )
+                );
+
                 return;
             }
+
 
             archivos.forEach(function (archivo) {
-                const fila = document.createElement('tr');
-                fila.appendChild(celda(celdaArchivo(archivo)));
-                fila.appendChild(celda(insigniaTipo(archivo.tipo)));
-                fila.appendChild(celda(archivo.filegroup || '—'));
-                fila.appendChild(celda(formatMb(archivo.tamanoMb)));
-                fila.appendChild(celda(barraUso(archivo.usadoMb, archivo.tamanoMb)));
-                fila.appendChild(celda(archivo.maxMb < 0 ? 'Sin límite' : formatMb(archivo.maxMb)));
-                fila.appendChild(celda(archivo.crecimientoPorcentual
-                    ? archivo.crecimiento + ' %'
-                    : formatMb(archivo.crecimiento)));
+
+                const fila =
+                    document.createElement('tr');
+
+
+                fila.appendChild(
+                    celda(
+                        celdaArchivo(
+                            archivo
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        insigniaTipo(
+                            archivo.tipo
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        archivo.filegroup
+                        || '—'
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        formatMb(
+                            archivo.tamanoMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        barraUso(
+                            archivo.usadoMb,
+                            archivo.tamanoMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        archivo.maxMb < 0
+                            ? 'Sin límite'
+                            : formatMb(
+                                archivo.maxMb
+                            )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        archivo.crecimientoPorcentual
+                            ? archivo.crecimiento
+                            + ' %'
+                            : formatMb(
+                                archivo.crecimiento
+                            )
+                    )
+                );
+
                 cuerpo.appendChild(fila);
             });
         }
 
-        function pintarObjetos(objetos, datosMbTotal) {
-            const cuerpo = document.getElementById('tablaObjetos');
+
+        function pintarObjetos(
+            objetos,
+            datosMbTotal
+        ) {
+
+            const cuerpo =
+                document.getElementById(
+                    'tablaObjetos'
+                );
+
             cuerpo.replaceChildren();
 
+
             if (objetos.length === 0) {
-                cuerpo.appendChild(filaVacia(6, 'No se encontraron tablas de usuario en la base de datos.'));
+
+                cuerpo.appendChild(
+                    filaVacia(
+                        6,
+                        'No se encontraron tablas de usuario en la base de datos.'
+                    )
+                );
+
                 return;
             }
 
+
             objetos.forEach(function (objeto) {
-                const fila = document.createElement('tr');
-                const filas = celda(Number(objeto.filas).toLocaleString('es-CR'));
-                filas.className = 'text-end';
-                fila.appendChild(celda(celdaObjeto(objeto)));
+
+                const fila =
+                    document.createElement('tr');
+
+
+                const filas =
+                    celda(
+                        Number(
+                            objeto.filas
+                        ).toLocaleString(
+                            'es-CR'
+                        )
+                    );
+
+
+                fila.appendChild(
+                    celda(
+                        celdaObjeto(
+                            objeto
+                        )
+                    )
+                );
+
                 fila.appendChild(filas);
-                fila.appendChild(celda(formatMb(objeto.datosMb)));
-                fila.appendChild(celda(formatMb(objeto.indicesMb)));
-                fila.appendChild(celda(formatMb(objeto.reservadoMb)));
-                fila.appendChild(celda(barraParticipacion(Number(objeto.reservadoMb), Number(datosMbTotal))));
+
+                fila.appendChild(
+                    celda(
+                        formatMb(
+                            objeto.datosMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        formatMb(
+                            objeto.indicesMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        formatMb(
+                            objeto.reservadoMb
+                        )
+                    )
+                );
+
+                fila.appendChild(
+                    celda(
+                        barraParticipacion(
+                            Number(
+                                objeto.reservadoMb
+                            ),
+                            Number(
+                                datosMbTotal
+                            )
+                        )
+                    )
+                );
+
                 cuerpo.appendChild(fila);
             });
         }
 
-        function pintarPanel(panel) {
-            document.getElementById('baseDatos').textContent = panel.tamano.baseDatos;
-            document.getElementById('datosMb').textContent = formatMb(panel.tamano.datosMb);
-            document.getElementById('logMb').textContent = formatMb(panel.tamano.logMb);
-            document.getElementById('totalMb').textContent = formatMb(panel.tamano.totalMb);
 
-            pintarHallazgos(panel.hallazgos);
-            pintarFilegroups(panel.filegroups);
-            pintarArchivos(panel.archivos);
-            pintarObjetos(panel.objetos, panel.tamano.datosMb);
+        function pintarPanel(panel) {
+
+            document.getElementById(
+                'baseDatos'
+            ).textContent =
+                panel.tamano.baseDatos;
+
+
+            document.getElementById(
+                'datosMb'
+            ).textContent =
+                formatMb(
+                    panel.tamano.datosMb
+                );
+
+
+            document.getElementById(
+                'logMb'
+            ).textContent =
+                formatMb(
+                    panel.tamano.logMb
+                );
+
+
+            document.getElementById(
+                'totalMb'
+            ).textContent =
+                formatMb(
+                    panel.tamano.totalMb
+                );
+
+
+            pintarHallazgos(
+                panel.hallazgos
+            );
+
+            pintarFilegroups(
+                panel.filegroups
+            );
+
+            pintarArchivos(
+                panel.archivos
+            );
+
+            pintarObjetos(
+                panel.objetos,
+                panel.tamano.datosMb
+            );
         }
+
 
         function mostrarError(mensaje) {
-            const alerta = document.getElementById('alertaError');
-            alerta.textContent = mensaje;
-            alerta.classList.remove('d-none');
-            document.getElementById('hallazgos').replaceChildren();
-            document.getElementById('tablaFilegroups').replaceChildren();
-            document.getElementById('tablaArchivos').replaceChildren();
-            document.getElementById('tablaObjetos').replaceChildren();
+
+            const alerta =
+                document.getElementById(
+                    'alertaError'
+                );
+
+            alerta.textContent =
+                mensaje;
+
+            alerta.classList.remove(
+                'd-none'
+            );
+
+
+            document.getElementById(
+                'hallazgos'
+            ).replaceChildren();
+
+            document.getElementById(
+                'tablaFilegroups'
+            ).replaceChildren();
+
+            document.getElementById(
+                'tablaArchivos'
+            ).replaceChildren();
+
+            document.getElementById(
+                'tablaObjetos'
+            ).replaceChildren();
         }
+
 
         function ocultarError() {
-            document.getElementById('alertaError').classList.add('d-none');
+
+            document.getElementById(
+                'alertaError'
+            ).classList.add(
+                'd-none'
+            );
         }
 
-        function mostrarAvisoCrecimiento(mensaje) {
-            const alerta = document.getElementById('alertaCrecimiento');
-            alerta.textContent = mensaje;
-            alerta.classList.remove('d-none');
+
+        function mostrarAvisoCrecimiento(
+            mensaje
+        ) {
+
+            const alerta =
+                document.getElementById(
+                    'alertaCrecimiento'
+                );
+
+            alerta.textContent =
+                mensaje;
+
+            alerta.classList.remove(
+                'd-none'
+            );
         }
+
 
         function ocultarAvisoCrecimiento() {
-            document.getElementById('alertaCrecimiento').classList.add('d-none');
+
+            document.getElementById(
+                'alertaCrecimiento'
+            ).classList.add(
+                'd-none'
+            );
         }
+
 
         function etiquetaFecha(texto) {
-            return new Date(texto).toLocaleString('es-CR', {
-                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-            });
+
+            return new Date(
+                texto
+            ).toLocaleString(
+                'es-CR',
+                {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }
+            );
         }
+
 
         function valorONulo(valor) {
-            return valor === null || valor === undefined ? null : Number(valor);
+
+            return valor === null
+            || valor === undefined
+                ? null
+                : Number(valor);
         }
 
+
         function pintarGrafico(historial) {
+
             if (grafico) {
+
                 grafico.destroy();
+
                 grafico = null;
             }
 
-            if (typeof Chart === 'undefined') {
-                mostrarAvisoCrecimiento('No se pudo cargar la biblioteca de gráficos. Verifique la conexión a internet.');
+
+            if (
+                typeof Chart
+                === 'undefined'
+            ) {
+
+                mostrarAvisoCrecimiento(
+                    'No se pudo cargar la biblioteca de gráficos. Verifique la conexión a internet.'
+                );
+
                 return;
             }
 
-            if (historial.length === 0) {
-                mostrarAvisoCrecimiento('Todavía no hay capturas registradas para graficar.');
+
+            if (
+                historial.length
+                === 0
+            ) {
+
+                mostrarAvisoCrecimiento(
+                    'Todavía no hay capturas registradas para graficar.'
+                );
+
                 return;
             }
 
-            grafico = new Chart(document.getElementById('graficoCrecimiento'), {
-                type: 'line',
-                data: {
-                    labels: historial.map(function (s) { return etiquetaFecha(s.fechaCaptura); }),
-                    datasets: [
-                        {
-                            label: 'Datos usados (MB)',
-                            data: historial.map(function (s) { return valorONulo(s.usadoDatosMb); }),
-                            borderColor: '#0d6efd',
-                            backgroundColor: '#0d6efd',
-                            tension: 0.2
+
+            grafico =
+                new Chart(
+                    document.getElementById(
+                        'graficoCrecimiento'
+                    ),
+                    {
+                        type: 'line',
+
+                        data: {
+
+                            labels:
+                                historial.map(
+                                    function (s) {
+
+                                        return etiquetaFecha(
+                                            s.fechaCaptura
+                                        );
+                                    }
+                                ),
+
+                            datasets: [
+
+                                {
+                                    label:
+                                        'Datos usados (MB)',
+
+                                    data:
+                                        historial.map(
+                                            function (s) {
+
+                                                return valorONulo(
+                                                    s.usadoDatosMb
+                                                );
+                                            }
+                                        ),
+
+                                    borderColor:
+                                        '#9fadba',
+
+                                    backgroundColor:
+                                        '#9fadba',
+
+                                    tension: 0.2
+                                },
+
+                                {
+                                    label:
+                                        'Datos asignados (MB)',
+
+                                    data:
+                                        historial.map(
+                                            function (s) {
+
+                                                return valorONulo(
+                                                    s.datosMb
+                                                );
+                                            }
+                                        ),
+
+                                    borderColor:
+                                        '#c2c9cf',
+
+                                    backgroundColor:
+                                        '#c2c9cf',
+
+                                    borderDash:
+                                        [6, 4],
+
+                                    tension: 0.2
+                                },
+
+                                {
+                                    label:
+                                        'Log usado (MB)',
+
+                                    data:
+                                        historial.map(
+                                            function (s) {
+
+                                                return valorONulo(
+                                                    s.usadoLogMb
+                                                );
+                                            }
+                                        ),
+
+                                    borderColor:
+                                        '#a68a4e',
+
+                                    backgroundColor:
+                                        '#a68a4e',
+
+                                    tension: 0.2
+                                }
+                            ]
                         },
-                        {
-                            label: 'Datos asignados (MB)',
-                            data: historial.map(function (s) { return valorONulo(s.datosMb); }),
-                            borderColor: '#198754',
-                            backgroundColor: '#198754',
-                            borderDash: [6, 4],
-                            tension: 0.2
-                        },
-                        {
-                            label: 'Log usado (MB)',
-                            data: historial.map(function (s) { return valorONulo(s.usadoLogMb); }),
-                            borderColor: '#fd7e14',
-                            backgroundColor: '#fd7e14',
-                            tension: 0.2
+
+                        options: {
+
+                            responsive: true,
+
+                            maintainAspectRatio:
+                                false,
+
+                            spanGaps: true,
+
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
+                            },
+
+                            plugins: {
+
+                                legend: {
+
+                                    labels: {
+                                        color: '#bcc2c8'
+                                    }
+                                }
+                            },
+
+                            scales: {
+
+                                y: {
+
+                                    beginAtZero: true,
+
+                                    ticks: {
+                                        color: '#838a92'
+                                    },
+
+                                    grid: {
+                                        color:
+                                            'rgba(255,255,255,0.06)'
+                                    },
+
+                                    title: {
+                                        display: true,
+                                        text: 'MB',
+                                        color: '#838a92'
+                                    }
+                                },
+
+                                x: {
+
+                                    ticks: {
+                                        color: '#838a92'
+                                    },
+
+                                    grid: {
+                                        color:
+                                            'rgba(255,255,255,0.06)'
+                                    },
+
+                                    title: {
+                                        display: true,
+                                        text:
+                                            'Fecha de captura (dd/mm, hora)',
+                                        color:
+                                            '#838a92'
+                                    }
+                                }
+                            }
                         }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    spanGaps: true,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'MB' } },
-                        x: { title: { display: true, text: 'Fecha de captura (dd/mm, hora)' } }
+                    }
+                );
+        }
+
+
+        function pintarCrecimiento(
+            crecimiento
+        ) {
+
+            ocultarAvisoCrecimiento();
+
+
+            document.getElementById(
+                'crecCapturas'
+            ).textContent =
+                String(
+                    crecimiento.capturas
+                );
+
+
+            document.getElementById(
+                'crecTotal'
+            ).textContent =
+                crecimiento
+                    .crecimientoUsadoMb
+                === null
+
+                    ? 'Sin datos suficientes'
+
+                    : formatMb(
+                        crecimiento
+                            .crecimientoUsadoMb
+                    );
+
+
+            document.getElementById(
+                'crecRitmo'
+            ).textContent =
+                crecimiento.mbPorDia
+                === null
+
+                    ? 'No disponible'
+
+                    : formatMb(
+                        crecimiento.mbPorDia
+                    )
+                    + ' / día';
+
+
+            document.getElementById(
+                'crecInterpretacion'
+            ).textContent =
+                crecimiento
+                    .interpretacion;
+
+
+            pintarGrafico(
+                crecimiento.historial
+            );
+        }
+
+
+        function mensajeDeError(
+            respuesta,
+            cuerpo,
+            porDefecto
+        ) {
+
+            return respuesta.ok
+                ? null
+                : (
+                    cuerpo.mensaje
+                    || porDefecto
+                );
+        }
+
+
+        function pedirJson(
+            url,
+            porDefecto
+        ) {
+
+            return fetch(
+                url,
+                {
+                    headers: {
+                        'Accept':
+                            'application/json'
                     }
                 }
-            });
+            )
+
+                .then(
+                    function (respuesta) {
+
+                        return respuesta
+                            .json()
+
+                            .catch(
+                                function () {
+                                    return {};
+                                }
+                            )
+
+                            .then(
+                                function (cuerpo) {
+
+                                    const error =
+                                        mensajeDeError(
+                                            respuesta,
+                                            cuerpo,
+                                            porDefecto
+                                        );
+
+                                    if (error) {
+                                        throw new Error(
+                                            error
+                                        );
+                                    }
+
+                                    return cuerpo;
+                                }
+                            );
+                    }
+                );
         }
 
-        function pintarCrecimiento(crecimiento) {
-            ocultarAvisoCrecimiento();
-            document.getElementById('crecCapturas').textContent = String(crecimiento.capturas);
-            document.getElementById('crecTotal').textContent = crecimiento.crecimientoUsadoMb === null
-                ? 'Sin datos suficientes'
-                : formatMb(crecimiento.crecimientoUsadoMb);
-            document.getElementById('crecRitmo').textContent = crecimiento.mbPorDia === null
-                ? 'No disponible'
-                : formatMb(crecimiento.mbPorDia) + ' / día';
-            document.getElementById('crecInterpretacion').textContent = crecimiento.interpretacion;
-            pintarGrafico(crecimiento.historial);
-        }
-
-        function mensajeDeError(respuesta, cuerpo, porDefecto) {
-            return respuesta.ok ? null : (cuerpo.mensaje || porDefecto);
-        }
-
-        function pedirJson(url, porDefecto) {
-            return fetch(url, { headers: { 'Accept': 'application/json' } })
-                .then(function (respuesta) {
-                    return respuesta.json().catch(function () { return {}; }).then(function (cuerpo) {
-                        const error = mensajeDeError(respuesta, cuerpo, porDefecto);
-                        if (error) {
-                            throw new Error(error);
-                        }
-                        return cuerpo;
-                    });
-                });
-        }
 
         function cargarPanel() {
+
             ocultarError();
-            return pedirJson(urlPanel, 'No fue posible cargar la información de almacenamiento.')
-                .then(pintarPanel)
-                .catch(function (error) { mostrarError(error.message); });
+
+            return pedirJson(
+                urlPanel,
+                'No fue posible cargar la información de almacenamiento.'
+            )
+
+                .then(
+                    pintarPanel
+                )
+
+                .catch(
+                    function (error) {
+
+                        mostrarError(
+                            error.message
+                        );
+                    }
+                );
         }
+
 
         function cargarCrecimiento() {
-            return pedirJson(urlCrecimiento, 'No fue posible cargar el historial de crecimiento.')
-                .then(pintarCrecimiento)
-                .catch(function (error) { mostrarAvisoCrecimiento(error.message); });
+
+            return pedirJson(
+                urlCrecimiento,
+                'No fue posible cargar el historial de crecimiento.'
+            )
+
+                .then(
+                    pintarCrecimiento
+                )
+
+                .catch(
+                    function (error) {
+
+                        mostrarAvisoCrecimiento(
+                            error.message
+                        );
+                    }
+                );
         }
 
+
         function cargarTodo() {
+
             cargarPanel();
             cargarCrecimiento();
         }
 
-        document.getElementById('btnActualizar').addEventListener('click', cargarTodo);
+
+        document
+            .getElementById(
+                'btnActualizar'
+            )
+            .addEventListener(
+                'click',
+                cargarTodo
+            );
+
+
         cargarTodo();
+
     })();
 </script>
 
